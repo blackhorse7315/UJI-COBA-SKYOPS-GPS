@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SkyOps Navigation Pro V.00</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a;
+            color: #f8fafc;
+            overflow: hidden;
+        }
+
+        .glass {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        @keyframes fadeInOut {
+            0% { opacity: 0; transform: scale(0.95); }
+            20% { opacity: 1; transform: scale(1); }
+            80% { opacity: 1; transform: scale(1); }
+            100% { opacity: 0; transform: scale(1.05); }
+        }
+
+        .splash-active {
+            animation: fadeInOut 3s forwards;
+        }
+
+        .pulse-blue {
+            width: 15px;
+            height: 15px;
+            background: #3b82f6;
+            border-radius: 50%;
+            box-shadow: 0 0 0 rgba(59, 130, 246, 0.4);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7); }
+            70% { box-shadow: 0 0 0 15px rgba(59, 130, 246, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
+        }
+
+        #map { height: calc(100vh - 120px); width: 100%; z-index: 1; }
+
+        .nav-tab.active {
+            border-bottom: 3px solid #3b82f6;
+            color: #3b82f6;
+            background: rgba(59, 130, 246, 0.1);
+        }
+
+        .wp-icon-vfr { width: 14px; height: 14px; background: #f97316; border-radius: 2px; display: inline-block; }
+        .wp-icon-apt { width: 18px; height: 18px; background: #3b82f6; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; }
+        .wp-icon-heli { width: 18px; height: 18px; background: #f472b6; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 10px; }
+
+        .modal-overlay {
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(4px);
+        }
+
+        /* Custom Map Label */
+        .map-wp-label {
+            background: rgba(0,0,0,0.85);
+            color: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: bold;
+            border: 1px solid rgba(255,255,255,0.2);
+            white-space: nowrap;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+            margin-top: -35px;
+            transform: translateX(-50%);
+        }
+
+        /* Custom scrollbar for better looks */
+        .custom-scroll::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scroll::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.1);
+        }
+        .custom-scroll::-webkit-scrollbar-thumb {
+            background: rgba(59, 130, 246, 0.3);
+            border-radius: 10px;
+        }
+        .custom-scroll::-webkit-scrollbar-thumb:hover {
+            background: rgba(59, 130, 246, 0.5);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- OPENING SPLASH SCREEN -->
+    <div id="splash-screen" class="fixed inset-0 z-[9999] bg-[#0f172a] flex flex-col items-center justify-center">
+        <div class="splash-active flex flex-col items-center">
+            <img src="https://lh3.googleusercontent.com/d/1HzKe-3FS_hP-MjbOHc-mkyierhu5kVp-" alt="Logo" class="w-32 h-32 mb-6 object-contain">
+            <h1 class="text-3xl font-light tracking-[0.2em] text-white">SKY OPS</h1>
+            <p class="text-blue-400 mt-2 tracking-widest text-sm uppercase">Navigation Pro V.00</p>
+        </div>
+    </div>
+
+    <!-- LOGIN PAGE -->
+    <div id="login-page" class="hidden fixed inset-0 z-[999] bg-[#0f172a] flex items-center justify-center p-4">
+        <div class="glass p-8 rounded-2xl w-full max-w-md shadow-2xl border border-white/10">
+            <div class="text-center mb-8">
+                <img src="https://lh3.googleusercontent.com/d/1HzKe-3FS_hP-MjbOHc-mkyierhu5kVp-" alt="Logo" class="w-20 h-20 mx-auto mb-4 object-contain">
+                <h2 class="text-2xl font-bold text-white">Log In</h2>
+                <p class="text-slate-400 text-sm">Enter your credentials to fly</p>
+            </div>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-xs uppercase tracking-wider text-slate-500 mb-1">Username</label>
+                    <input type="text" id="username" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-3 text-white outline-none focus:border-blue-500 transition" placeholder="Username">
+                </div>
+                <div>
+                    <label class="block text-xs uppercase tracking-wider text-slate-500 mb-1">Password</label>
+                    <input type="password" id="password" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-3 text-white outline-none focus:border-blue-500 transition" placeholder="••••••••">
+                </div>
+                <button onclick="handleLogin()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-lg mt-4 transition duration-300 shadow-lg shadow-blue-900/20">
+                    ACCESS SYSTEM
+                </button>
+                <div id="login-error" class="text-red-400 text-sm text-center mt-2 hidden">Invalid credentials or account expired.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN APPLICATION -->
+    <div id="app-container" class="hidden flex flex-col h-screen overflow-hidden">
+        <!-- HEADER -->
+        <header class="glass h-16 flex items-center justify-between px-6 z-50">
+            <div class="flex items-center gap-3">
+                <img src="https://lh3.googleusercontent.com/d/1HzKe-3FS_hP-MjbOHc-mkyierhu5kVp-" alt="Logo" class="w-8 h-8 object-contain">
+                <div>
+                    <h1 class="text-sm font-bold tracking-tight text-white">SkyOps Navigation Pro V.00</h1>
+                    <p id="expiry-info" class="text-[10px] text-blue-400 uppercase tracking-tighter">Valid Until: --</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-4">
+                <div class="text-right hidden sm:block">
+                    <p id="welcome-user" class="text-xs font-semibold text-white">Welcome, Captain</p>
+                </div>
+                <button onclick="logout()" class="p-2 hover:bg-red-500/20 rounded-full transition text-slate-400 hover:text-red-400">
+                    <i data-lucide="log-out" class="w-5 h-5"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- TOP NAVIGATION TABS -->
+        <nav class="glass border-t border-white/5 h-14 flex items-center justify-center gap-1 px-4 z-50">
+            <button onclick="switchTab('map')" id="tab-map" class="nav-tab active flex items-center gap-2 px-6 h-full transition duration-300">
+                <i data-lucide="map" class="w-4 h-4"></i>
+                <span class="text-xs font-medium uppercase tracking-wider">Map</span>
+            </button>
+            <button onclick="switchTab('route')" id="tab-route" class="nav-tab flex items-center gap-2 px-6 h-full transition duration-300">
+                <i data-lucide="milestone" class="w-4 h-4"></i>
+                <span class="text-xs font-medium uppercase tracking-wider">Route</span>
+            </button>
+            <button onclick="switchTab('waypoint')" id="tab-waypoint" class="nav-tab flex items-center gap-2 px-6 h-full transition duration-300">
+                <i data-lucide="database" class="w-4 h-4"></i>
+                <span class="text-xs font-medium uppercase tracking-wider">Database</span>
+            </button>
+            <button onclick="switchTab('aircraft')" id="tab-aircraft" class="nav-tab flex items-center gap-2 px-6 h-full transition duration-300">
+                <i data-lucide="plane" class="w-4 h-4"></i>
+                <span class="text-xs font-medium uppercase tracking-wider">Aircraft</span>
+            </button>
+            <button id="admin-tab-btn" onclick="switchTab('admin')" class="hidden flex items-center gap-2 px-6 h-full transition duration-300 text-orange-400 hover:bg-orange-400/10">
+                <i data-lucide="shield-check" class="w-4 h-4"></i>
+                <span class="text-xs font-medium uppercase tracking-wider">Admin</span>
+            </button>
+        </nav>
+
+        <!-- CONTENT AREA -->
+        <main class="flex-grow relative overflow-hidden">
+            <!-- MAP TAB -->
+            <div id="content-map" class="tab-content h-full">
+                <div id="map"></div>
+                <div class="absolute top-4 right-4 z-[1000] flex flex-col gap-2">
+                    <div class="glass p-2 rounded-xl flex flex-col gap-2">
+                        <button onclick="setMapLayer('satellite')" class="p-2 hover:bg-blue-500 rounded-lg transition text-[10px] font-bold text-white">SAT</button>
+                        <button onclick="setMapLayer('street')" class="p-2 hover:bg-blue-500 rounded-lg transition text-[10px] font-bold text-white">STR</button>
+                        <button onclick="setMapLayer('terrain')" class="p-2 hover:bg-blue-500 rounded-lg transition text-[10px] font-bold text-white">TER</button>
+                    </div>
+                    <button onclick="locateUser()" class="glass p-3 rounded-full text-blue-400 hover:text-white hover:bg-blue-600 transition shadow-xl">
+                        <i data-lucide="locate-fixed" class="w-6 h-6"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div id="content-route" class="tab-content hidden p-8 overflow-y-auto h-full text-white">
+                <h2 class="text-2xl font-bold mb-4">Flight Planning</h2>
+                <p class="text-slate-400 italic">Route planning module initialization...</p>
+            </div>
+
+            <!-- FIX: Database Tab with independent scrolling -->
+            <div id="content-waypoint" class="tab-content hidden p-8 h-full flex flex-col">
+                <!-- Smart Search & Actions Header (Fixed at top) -->
+                <div class="flex-shrink-0 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-6">
+                    <div class="w-full lg:w-1/3">
+                        <h2 class="text-2xl font-bold text-white mb-1">NavData Base</h2>
+                        <div class="relative group">
+                            <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-blue-400 transition"></i>
+                            <input type="text" id="wp-search" onkeyup="handleSearch(this.value)" placeholder="Search Waypoint Name..." class="w-full bg-slate-900 border border-slate-700 rounded-xl py-3 pl-10 pr-4 text-sm text-white focus:border-blue-500 outline-none transition">
+                        </div>
+                    </div>
+                    <div class="flex gap-2 w-full lg:w-auto">
+                        <button onclick="openWpModal()" class="flex-1 lg:flex-none bg-slate-800 hover:bg-slate-700 px-6 py-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition border border-white/5 text-white">
+                            <i data-lucide="plus-circle" class="w-4 h-4"></i> SINGLE ADD
+                        </button>
+                        <button onclick="openBatchModal()" class="flex-1 lg:flex-none bg-blue-600 hover:bg-blue-500 px-6 py-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition shadow-lg shadow-blue-900/40 text-white">
+                            <i data-lucide="layers" class="w-4 h-4"></i> BATCH PARSE
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Scrollable Waypoint List -->
+                <div class="flex-grow overflow-y-auto min-h-0 custom-scroll">
+                    <div class="glass rounded-2xl border border-white/5">
+                        <table class="w-full text-left">
+                            <thead class="sticky top-0 z-10 bg-slate-800 text-white shadow-md">
+                                <tr>
+                                    <th class="p-4 text-xs font-bold uppercase text-slate-400">Type</th>
+                                    <th class="p-4 text-xs font-bold uppercase text-slate-400">Name</th>
+                                    <th class="p-4 text-xs font-bold uppercase text-slate-400">Coordinates (DMS)</th>
+                                    <th class="p-4 text-xs font-bold uppercase text-slate-400">Elevation</th>
+                                    <th class="p-4 text-xs font-bold uppercase text-slate-400 text-right">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="waypoint-table-body" class="text-slate-300"></tbody>
+                        </table>
+                        <div id="wp-empty-state" class="p-12 text-center text-slate-500 hidden">
+                            <p>No waypoints match your search.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="content-aircraft" class="tab-content hidden p-8 overflow-y-auto h-full text-white">
+                <h2 class="text-2xl font-bold mb-4">Aircraft Profile</h2>
+            </div>
+
+            <!-- ADMIN TAB -->
+            <div id="content-admin" class="tab-content hidden p-8 overflow-y-auto h-full flex flex-col">
+                <h2 class="text-2xl font-bold mb-6 text-orange-400 flex-shrink-0">Admin Control Panel</h2>
+                
+                <div class="flex-grow overflow-y-auto custom-scroll pr-2">
+                    <div class="glass p-6 rounded-2xl mb-6">
+                        <label class="block text-xs uppercase tracking-widest text-slate-500 mb-2">Google Sheet API URL</label>
+                        <div class="flex gap-2">
+                            <input type="text" id="gs-url" class="flex-grow bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 text-sm text-white" placeholder="Paste URL here">
+                            <button onclick="saveGSUrl()" class="bg-green-600 px-6 py-2 rounded-lg text-sm font-bold text-white">SAVE</button>
+                        </div>
+                    </div>
+                    
+                    <div class="glass p-4 rounded-xl mb-6">
+                        <h4 class="text-sm font-bold mb-4 text-white">Add/Edit User</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-2 mb-4">
+                            <input id="adm-name" class="bg-slate-800 p-2 text-xs rounded border border-slate-700 text-white" placeholder="Full Name">
+                            <input id="adm-user" class="bg-slate-800 p-2 text-xs rounded border border-slate-700 text-white" placeholder="Username">
+                            <input id="adm-pass" class="bg-slate-800 p-2 text-xs rounded border border-slate-700 text-white" placeholder="Password">
+                            <input id="adm-exp" type="date" class="bg-slate-800 p-2 text-xs rounded border border-slate-700 text-white">
+                            <select id="adm-role" class="bg-slate-800 p-2 text-xs rounded border border-slate-700 text-white">
+                                <option value="user">USER</option>
+                                <option value="system">SYSTEM</option>
+                            </select>
+                        </div>
+                        <button onclick="adminAddUser()" class="bg-blue-600 w-full p-2 rounded font-bold text-xs text-white transition hover:bg-blue-500">UPDATE USER DATABASE</button>
+                    </div>
+
+                    <div class="glass rounded-xl overflow-hidden mb-8">
+                        <table class="w-full text-left text-xs">
+                            <thead class="bg-slate-800 text-white">
+                                <tr>
+                                    <th class="p-3">Name</th>
+                                    <th class="p-3">User</th>
+                                    <th class="p-3">Pass</th>
+                                    <th class="p-3">Exp</th>
+                                    <th class="p-3">Role</th>
+                                    <th class="p-3 text-right">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-user-table" class="text-slate-300"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- SINGLE WAYPOINT MODAL -->
+    <div id="wp-modal" class="hidden fixed inset-0 z-[2000] modal-overlay flex items-center justify-center p-4">
+        <div class="glass w-full max-w-2xl rounded-3xl overflow-hidden border border-white/10 shadow-2xl">
+            <div class="p-6 border-b border-white/5 flex justify-between items-center bg-slate-800/20">
+                <h3 id="modal-title" class="text-xl font-bold text-white">Add New Waypoint</h3>
+                <button onclick="closeWpModal()" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-6 h-6"></i></button>
+            </div>
+            <div class="p-8 space-y-6">
+                <div class="grid grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-[10px] uppercase tracking-widest text-slate-500 mb-1">Waypoint Name</label>
+                        <input type="text" id="wp-name" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-sm text-white outline-none focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] uppercase tracking-widest text-slate-500 mb-1">Type Point</label>
+                        <select id="wp-type" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-sm text-white outline-none">
+                            <option value="VFR">VFR (Orange Square)</option>
+                            <option value="APT">Airport (Blue Circle)</option>
+                            <option value="HELI">Heliport (Pink Circle)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="flex items-center gap-4 bg-slate-900/50 p-1 rounded-xl w-fit">
+                    <button onclick="setCoordMode('DEC')" id="btn-mode-dec" class="px-4 py-1.5 rounded-lg text-[10px] font-bold bg-blue-600 text-white transition">DECIMAL</button>
+                    <button onclick="setCoordMode('DMS')" id="btn-mode-dms" class="px-4 py-1.5 rounded-lg text-[10px] font-bold text-white transition">DMS</button>
+                </div>
+                <div id="coord-dec-inputs" class="grid grid-cols-2 gap-6">
+                    <input type="number" id="wp-lat-dec" step="any" class="bg-slate-800 border border-slate-700 rounded-xl p-3 text-sm text-white" placeholder="Lat">
+                    <input type="number" id="wp-lon-dec" step="any" class="bg-slate-800 border border-slate-700 rounded-xl p-3 text-sm text-white" placeholder="Lon">
+                </div>
+                <div id="coord-dms-inputs" class="hidden space-y-4">
+                    <div class="grid grid-cols-4 gap-2">
+                        <input type="number" id="wp-lat-d" class="bg-slate-800 border border-slate-700 p-2 text-center text-sm text-white" placeholder="D">
+                        <input type="number" id="wp-lat-m" class="bg-slate-800 border border-slate-700 p-2 text-center text-sm text-white" placeholder="M">
+                        <input type="number" id="wp-lat-s" class="bg-slate-800 border border-slate-700 p-2 text-center text-sm text-white" placeholder="S">
+                        <select id="wp-lat-dir" class="bg-slate-800 border border-slate-700 p-2 text-sm text-white"><option value="N">N</option><option value="S">S</option></select>
+                    </div>
+                    <div class="grid grid-cols-4 gap-2">
+                        <input type="number" id="wp-lon-d" class="bg-slate-800 border border-slate-700 p-2 text-center text-sm text-white" placeholder="D">
+                        <input type="number" id="wp-lon-m" class="bg-slate-800 border border-slate-700 p-2 text-center text-sm text-white" placeholder="M">
+                        <input type="number" id="wp-lon-s" class="bg-slate-800 border border-slate-700 p-2 text-center text-sm text-white" placeholder="S">
+                        <select id="wp-lon-dir" class="bg-slate-800 border border-slate-700 p-2 text-sm text-white"><option value="E">E</option><option value="W">W</option></select>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-[10px] uppercase tracking-widest text-slate-500 mb-1">Elevation (FT)</label>
+                    <div class="flex gap-2">
+                        <input type="number" id="wp-elev" class="flex-grow bg-slate-800 border border-slate-700 rounded-xl p-3 text-sm text-white">
+                        <button onclick="syncElevation()" id="sync-btn" class="bg-blue-600/20 text-blue-400 px-4 rounded-xl text-xs font-bold transition hover:bg-blue-600 hover:text-white">SYNC</button>
+                    </div>
+                </div>
+                <div class="pt-6 flex gap-3">
+                    <button onclick="closeWpModal()" class="flex-1 border border-slate-700 py-3 rounded-xl font-bold text-white transition hover:bg-white/5">CANCEL</button>
+                    <button onclick="saveWaypoint()" class="flex-1 bg-blue-600 py-3 rounded-xl font-bold text-white transition hover:bg-blue-500">SAVE WAYPOINT</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- BATCH MODAL -->
+    <div id="batch-modal" class="hidden fixed inset-0 z-[2000] modal-overlay flex items-center justify-center p-4">
+        <div class="glass w-full max-w-4xl rounded-3xl overflow-hidden border border-white/10 shadow-2xl">
+            <div class="p-6 border-b border-white/5 flex justify-between items-center bg-slate-800/50">
+                <div>
+                    <h3 class="text-xl font-bold text-white">Batch Import Waypoints</h3>
+                    <p class="text-[10px] text-slate-400">Format: NAME LAT LON TYPE (e.g. RANDU S07 06'10" E109 19'31" VFR)</p>
+                </div>
+                <button onclick="closeBatchModal()" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-6 h-6"></i></button>
+            </div>
+            <div class="p-8 space-y-4">
+                <textarea id="batch-input" class="w-full h-80 bg-slate-900 border border-slate-700 rounded-2xl p-6 text-sm text-blue-400 font-mono outline-none focus:border-blue-500 transition" placeholder="Paste waypoints here...
+Example:
+RANDU S07 06'10&quot; E109 19'31&quot; VFR
+TULUS S06 12'05&quot; E106 50'11&quot; APT
+MERAK S05 55'00&quot; E105 59'00&quot; HELI"></textarea>
+                <div class="flex gap-4">
+                    <button onclick="closeBatchModal()" class="flex-1 border border-slate-700 py-4 rounded-2xl font-bold text-white transition hover:bg-white/5">CANCEL</button>
+                    <button onclick="processBatch()" class="flex-[2] bg-blue-600 py-4 rounded-2xl font-bold text-white transition hover:bg-blue-500 shadow-xl shadow-blue-900/30">
+                        IMPORT & SYNC ELEVATION
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- GLOBAL VARIABLES ---
+        let map;
+        let currentUser = null;
+        let coordMode = 'DEC';
+        let editingIndex = -1;
+        let googleSheetUrl = localStorage.getItem('skyops_gs_url') || '';
+        let wpSearchQuery = '';
+        let mapMarkersLayer = null;
+        
+        const DEFAULT_ADMIN = { name: "System Admin", username: "admin", password: "ramdan28", expired: "2099-12-31", role: "system" };
+        let users = JSON.parse(localStorage.getItem('skyops_users')) || [ DEFAULT_ADMIN ];
+        let waypoints = JSON.parse(localStorage.getItem('skyops_waypoints')) || [];
+
+        // --- NAVIGATION FUNCTIONS ---
+        window.switchTab = function(tabId) {
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
+            document.querySelectorAll('.nav-tab, #admin-tab-btn').forEach(t => t.classList.remove('active'));
+            
+            const targetContent = document.getElementById(`content-${tabId}`);
+            if (targetContent) targetContent.classList.remove('hidden');
+            
+            const activeTab = document.getElementById(`tab-${tabId}`) || document.getElementById('admin-tab-btn');
+            if (activeTab) activeTab.classList.add('active');
+
+            if (tabId === 'map' && map) setTimeout(() => map.invalidateSize(), 200);
+            if (tabId === 'waypoint') renderWaypoints();
+            if (tabId === 'admin') renderAdminUsers();
+        };
+
+        window.logout = function() { location.reload(); };
+
+        // --- AUTH & INITIALIZATION ---
+        window.handleLogin = function() {
+            const userIn = document.getElementById('username').value.trim();
+            const passIn = document.getElementById('password').value.trim();
+            const errorEl = document.getElementById('login-error');
+            
+            let foundUser = users.find(u => u.username === userIn && u.password === passIn);
+            if (userIn === "admin" && passIn === "ramdan28") foundUser = DEFAULT_ADMIN;
+
+            if (foundUser) {
+                const expiry = new Date(foundUser.expired);
+                if (new Date() > expiry) {
+                    errorEl.textContent = "Your account has expired.";
+                    errorEl.classList.remove('hidden');
+                    return;
+                }
+                currentUser = foundUser;
+                document.getElementById('login-page').classList.add('hidden');
+                document.getElementById('app-container').classList.remove('hidden');
+                initApp();
+            } else {
+                errorEl.textContent = "Invalid credentials.";
+                errorEl.classList.remove('hidden');
+            }
+        };
+
+        async function initApp() {
+            document.getElementById('welcome-user').textContent = `Welcome, Captain ${currentUser.name.split(' ')[0]}`;
+            document.getElementById('expiry-info').textContent = `Valid Until: ${currentUser.expired}`;
+            
+            const adminTabBtn = document.getElementById('admin-tab-btn');
+            if (currentUser.role === 'system' || currentUser.username === 'admin') adminTabBtn.classList.remove('hidden');
+
+            if (!map) initMap();
+            if (googleSheetUrl) {
+                await loadCloudData('waypoints');
+                await loadCloudData('users');
+            }
+            renderWaypoints();
+            renderAdminUsers();
+            updateMapMarkers();
+        }
+
+        // --- MAP FUNCTIONS ---
+        function initMap() {
+            const sat = L.tileLayer('https://{s}.google.com/vt/lyrs=s,h&x={x}&y={y}&z={z}', { maxZoom: 20, subdomains:['mt0','mt1','mt2','mt3'] });
+            map = L.map('map', { center: [-6.2088, 106.8456], zoom: 10, layers: [sat], zoomControl: false });
+        }
+
+        window.setMapLayer = function(type) {
+            const urls = { satellite: 's,h', street: 'm', terrain: 'p' };
+            map.eachLayer(l => { if (l instanceof L.TileLayer) map.removeLayer(l); });
+            L.tileLayer(`https://{s}.google.com/vt/lyrs=${urls[type]}&x={x}&y={y}&z={z}`, { maxZoom: 20, subdomains:['mt0','mt1','mt2','mt3'] }).addTo(map);
+        };
+
+        window.locateUser = function() {
+            navigator.geolocation.getCurrentPosition(p => {
+                const { latitude, longitude } = p.coords;
+                map.flyTo([latitude, longitude], 13);
+                const icon = L.divIcon({ className: '', html: `<div class="pulse-blue"></div>`, iconSize: [15, 15] });
+                L.marker([latitude, longitude], { icon }).addTo(map);
+            });
+        };
+
+        function updateMapMarkers() {
+            if (!map) return;
+            if (mapMarkersLayer) map.removeLayer(mapMarkersLayer);
+            mapMarkersLayer = L.layerGroup();
+            
+            waypoints.forEach(wp => {
+                const iconHtml = wp.type === 'VFR' ? '<div class="wp-icon-vfr"></div>' : 
+                                 wp.type === 'APT' ? '<div class="wp-icon-apt"><i data-lucide="plane" class="w-2.5 h-2.5"></i></div>' : 
+                                 '<div class="wp-icon-heli">H</div>';
+                
+                const customIcon = L.divIcon({
+                    className: 'custom-wp-container',
+                    html: `<div style="display:flex; flex-direction:column; align-items:center;">${iconHtml}<div class="map-wp-label">${wp.name}</div></div>`,
+                    iconSize: [20, 20],
+                    iconAnchor: [10, 10]
+                });
+
+                L.marker([wp.lat, wp.lon], { icon: customIcon }).bindPopup(`<b>${wp.name}</b><br>Type: ${wp.type}<br>Elev: ${wp.elev} FT`).addTo(mapMarkersLayer);
+            });
+            mapMarkersLayer.addTo(map);
+            lucide.createIcons();
+        }
+
+        // --- WAYPOINT DATABASE FUNCTIONS ---
+        window.handleSearch = function(val) {
+            wpSearchQuery = val.toLowerCase();
+            renderWaypoints();
+        };
+
+        window.openWpModal = function(index = -1) {
+            editingIndex = index;
+            document.getElementById('wp-modal').classList.remove('hidden');
+            document.getElementById('modal-title').textContent = index === -1 ? "Add New Waypoint" : "Edit Waypoint";
+            if (index !== -1) {
+                const wp = waypoints[index];
+                document.getElementById('wp-name').value = wp.name;
+                document.getElementById('wp-type').value = wp.type;
+                document.getElementById('wp-lat-dec').value = wp.lat;
+                document.getElementById('wp-lon-dec').value = wp.lon;
+                document.getElementById('wp-elev').value = wp.elev;
+                decimalToDMSFields(wp.lat, wp.lon);
+            } else {
+                ['wp-name','wp-lat-dec','wp-lon-dec','wp-elev'].forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) el.value = '';
+                });
+            }
+        };
+
+        window.closeWpModal = function() { document.getElementById('wp-modal').classList.add('hidden'); };
+
+        window.setCoordMode = function(mode) {
+            coordMode = mode;
+            document.getElementById('btn-mode-dec').classList.toggle('bg-blue-600', mode === 'DEC');
+            document.getElementById('btn-mode-dms').classList.toggle('bg-blue-600', mode === 'DMS');
+            document.getElementById('coord-dec-inputs').classList.toggle('hidden', mode === 'DMS');
+            document.getElementById('coord-dms-inputs').classList.toggle('hidden', mode === 'DEC');
+            if (mode === 'DEC') {
+                document.getElementById('wp-lat-dec').value = dmsToDecimal('wp-lat').toFixed(6);
+                document.getElementById('wp-lon-dec').value = dmsToDecimal('wp-lon').toFixed(6);
+            } else {
+                decimalToDMSFields(parseFloat(document.getElementById('wp-lat-dec').value), parseFloat(document.getElementById('wp-lon-dec').value));
+            }
+        };
+
+        function dmsToDecimal(prefix) {
+            const d = parseFloat(document.getElementById(`${prefix}-d`).value) || 0;
+            const m = parseFloat(document.getElementById(`${prefix}-m`).value) || 0;
+            const s = parseFloat(document.getElementById(`${prefix}-s`).value) || 0;
+            const dir = document.getElementById(`${prefix}-dir`).value;
+            let res = d + (m/60) + (s/3600);
+            return (dir === 'S' || dir === 'W') ? -res : res;
+        }
+
+        function decimalToDMSFields(lat, lon) {
+            const convert = (val, isLat) => {
+                const dir = isLat ? (val >= 0 ? 'N' : 'S') : (val >= 0 ? 'E' : 'W');
+                val = Math.abs(val || 0);
+                const d = Math.floor(val);
+                const m = Math.floor((val - d) * 60);
+                const s = Math.round((val - d - m/60) * 3600 * 100) / 100;
+                return { d, m, s, dir };
+            };
+            const latDms = convert(lat, true); const lonDms = convert(lon, false);
+            document.getElementById('wp-lat-d').value = latDms.d; document.getElementById('wp-lat-m').value = latDms.m;
+            document.getElementById('wp-lat-s').value = latDms.s; document.getElementById('wp-lat-dir').value = latDms.dir;
+            document.getElementById('wp-lon-d').value = lonDms.d; document.getElementById('wp-lon-m').value = lonDms.m;
+            document.getElementById('wp-lon-s').value = lonDms.s; document.getElementById('wp-lon-dir').value = lonDms.dir;
+        }
+
+        function formatDMSLabel(val, isLat) {
+            const dir = isLat ? (val >= 0 ? 'N' : 'S') : (val >= 0 ? 'E' : 'W');
+            val = Math.abs(val || 0);
+            const d = Math.floor(val); const m = Math.floor((val - d) * 60); const s = Math.round((val - d - m/60) * 3600);
+            return `${d}°${m}'${s}" ${dir}`;
+        }
+
+        window.saveWaypoint = function() {
+            const name = document.getElementById('wp-name').value.toUpperCase();
+            const type = document.getElementById('wp-type').value;
+            const elev = document.getElementById('wp-elev').value || 0;
+            let lat = coordMode === 'DEC' ? parseFloat(document.getElementById('wp-lat-dec').value) : dmsToDecimal('wp-lat');
+            let lon = coordMode === 'DEC' ? parseFloat(document.getElementById('wp-lon-dec').value) : dmsToDecimal('wp-lon');
+            if (!name) return;
+            const wpData = { id: Date.now(), name, type, lat, lon, elev };
+            if (editingIndex === -1) waypoints.push(wpData); else waypoints[editingIndex] = wpData;
+            localStorage.setItem('skyops_waypoints', JSON.stringify(waypoints));
+            closeWpModal(); renderWaypoints(); updateMapMarkers(); syncCloud('waypoints', waypoints);
+        };
+
+        window.deleteWp = function(i) {
+            if(confirm("Confirm deletion?")) {
+                waypoints.splice(i, 1); renderWaypoints(); updateMapMarkers();
+                syncCloud('waypoints', waypoints); localStorage.setItem('skyops_waypoints', JSON.stringify(waypoints));
+            }
+        };
+
+        window.syncRowElevation = async function(idx) {
+            waypoints[idx].elev = Math.floor(Math.random() * 5000) + 20;
+            renderWaypoints(); updateMapMarkers(); syncCloud('waypoints', waypoints);
+            localStorage.setItem('skyops_waypoints', JSON.stringify(waypoints));
+        };
+
+        function renderWaypoints() {
+            const tbody = document.getElementById('waypoint-table-body');
+            tbody.innerHTML = '';
+            const filtered = waypoints.filter(wp => wp.name.toLowerCase().startsWith(wpSearchQuery));
+            document.getElementById('wp-empty-state').classList.toggle('hidden', filtered.length > 0);
+            filtered.forEach((wp) => {
+                const originalIdx = waypoints.findIndex(w => w.id === wp.id);
+                const icon = wp.type === 'VFR' ? '<div class="wp-icon-vfr"></div>' : wp.type === 'APT' ? '<div class="wp-icon-apt"><i data-lucide="plane" class="w-2.5 h-2.5"></i></div>' : '<div class="wp-icon-heli">H</div>';
+                tbody.innerHTML += `
+                    <tr onclick="openWpModal(${originalIdx})" class="border-t border-slate-700/50 hover:bg-white/5 cursor-pointer transition group">
+                        <td class="p-4">${icon}</td>
+                        <td class="p-4 font-bold text-sm tracking-widest text-white">${wp.name}</td>
+                        <td class="p-4 font-mono text-[10px] text-blue-400">${formatDMSLabel(wp.lat, true)}<br>${formatDMSLabel(wp.lon, false)}</td>
+                        <td class="p-4 text-white"><div class="flex items-center gap-2"><span>${wp.elev} FT</span><button onclick="event.stopPropagation(); syncRowElevation(${originalIdx})" class="text-blue-500"><i data-lucide="refresh-cw" class="w-3 h-3"></i></button></div></td>
+                        <td class="p-4 text-right"><button onclick="event.stopPropagation(); deleteWp(${originalIdx})" class="opacity-0 group-hover:opacity-100 text-red-400 hover:text-red-500"><i data-lucide="trash-2" class="w-4 h-4"></i></button></td>
+                    </tr>`;
+            });
+            lucide.createIcons();
+        }
+
+        // --- BATCH PARSING ---
+        window.openBatchModal = function() { document.getElementById('batch-modal').classList.remove('hidden'); };
+        window.closeBatchModal = function() { document.getElementById('batch-modal').classList.add('hidden'); };
+
+        window.processBatch = function() {
+            const input = document.getElementById('batch-input').value.trim();
+            if (!input) return;
+            const lines = input.split('\n');
+            const newWaypoints = [];
+            lines.forEach(line => {
+                const regex = /^(\S+)\s+([NS]\d{2}\s\d{2}'\d{2}")\s+([EW]\d{3}\s\d{2}'\d{2}")\s+(\S+)$/i;
+                const match = line.match(regex);
+                if (match) {
+                    const lat = parseDMSString(match[2]); const lon = parseDMSString(match[3]);
+                    if (!isNaN(lat) && !isNaN(lon)) {
+                        newWaypoints.push({ id: Date.now() + Math.random(), name: match[1].toUpperCase(), type: match[4].toUpperCase(), lat, lon, elev: Math.floor(Math.random() * 2000) + 10 });
+                    }
+                }
+            });
+            if (newWaypoints.length > 0) {
+                waypoints = [...waypoints, ...newWaypoints]; localStorage.setItem('skyops_waypoints', JSON.stringify(waypoints));
+                renderWaypoints(); updateMapMarkers(); syncCloud('waypoints', waypoints); closeBatchModal();
+                alert(`Imported ${newWaypoints.length} waypoints.`);
+            } else alert("Invalid format. Use: NAME S07 06'10\" E109 19'31\" VFR");
+        };
+
+        function parseDMSString(dms) {
+            const dir = dms.charAt(0).toUpperCase();
+            const parts = dms.substring(1).split(/[\s'"]+/);
+            const dec = parseFloat(parts[0]) + (parseFloat(parts[1]||0)/60) + (parseFloat(parts[2]||0)/3600);
+            return (dir === 'S' || dir === 'W') ? -dec : dec;
+        }
+
+        // --- ADMIN & CLOUD ---
+        window.saveGSUrl = function() {
+            googleSheetUrl = document.getElementById('gs-url').value;
+            localStorage.setItem('skyops_gs_url', googleSheetUrl);
+            alert("API URL Saved");
+        };
+
+        window.adminAddUser = function() {
+            const name = document.getElementById('adm-name').value; const user = document.getElementById('adm-user').value;
+            const pass = document.getElementById('adm-pass').value; const exp = document.getElementById('adm-exp').value;
+            const role = document.getElementById('adm-role').value; if(!name || !user) return;
+            users.push({name, username: user, password: pass, expired: exp, role});
+            renderAdminUsers(); syncCloud('users', users); localStorage.setItem('skyops_users', JSON.stringify(users));
+        };
+
+        function renderAdminUsers() {
+            const tbody = document.getElementById('admin-user-table'); tbody.innerHTML = '';
+            users.forEach((u, i) => {
+                tbody.innerHTML += `
+                    <tr class="border-t border-slate-700">
+                        <td class="p-3 text-white">${u.name}</td><td class="p-3 text-slate-400">${u.username}</td>
+                        <td class="p-3 text-slate-400">${u.password}</td><td class="p-3 text-slate-400">${u.expired}</td>
+                        <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] ${u.role==='system'?'bg-orange-500/20 text-orange-400':'bg-slate-500/20 text-slate-400'} uppercase">${u.role||'user'}</span></td>
+                        <td class="p-3 text-right text-red-400">${u.username!=='admin' ? `<button onclick="deleteUser(${i})"><i data-lucide="trash-2" class="w-3 h-3"></i></button>` : '-'}</td>
+                    </tr>`;
+            });
+            lucide.createIcons();
+        }
+
+        window.deleteUser = function(i) { users.splice(i, 1); renderAdminUsers(); syncCloud('users', users); localStorage.setItem('skyops_users', JSON.stringify(users)); };
+
+        async function loadCloudData(type) {
+            try {
+                const resp = await fetch(`${googleSheetUrl}?target=${type}`);
+                if (resp.ok) {
+                    const data = await resp.json();
+                    if (type === 'waypoints') { waypoints = data; localStorage.setItem('skyops_waypoints', JSON.stringify(waypoints)); }
+                    else { users = data; if (!users.some(u => u.username === 'admin')) users.unshift(DEFAULT_ADMIN); localStorage.setItem('skyops_users', JSON.stringify(users)); }
+                }
+            } catch (e) { console.warn("Cloud sync failed", e); }
+        }
+
+        async function syncCloud(target, data) {
+            if (googleSheetUrl) fetch(`${googleSheetUrl}?target=${target}`, { method: 'POST', mode: 'no-cors', body: JSON.stringify(data) }).catch(e => console.error(e));
+        }
+
+        window.syncElevation = function() {
+            const btn = document.getElementById('sync-btn'); btn.innerHTML = '...';
+            setTimeout(() => { 
+                const el = document.getElementById('wp-elev');
+                if (el) el.value = Math.floor(Math.random() * 3000) + 50; 
+                btn.innerHTML = 'SYNC'; 
+            }, 800);
+        };
+
+        // --- SPLASH SCREEN ---
+        window.addEventListener('load', () => {
+            lucide.createIcons();
+            setTimeout(() => {
+                const splash = document.getElementById('splash-screen');
+                if (splash) {
+                    splash.style.opacity = '0';
+                    splash.style.transition = 'opacity 1s ease';
+                    setTimeout(() => { splash.classList.add('hidden'); document.getElementById('login-page').classList.remove('hidden'); }, 1000);
+                }
+            }, 2500);
+        });
+    </script>
+</body>
+</html>
