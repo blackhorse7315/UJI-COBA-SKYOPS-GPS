@@ -54,10 +54,21 @@
             transform: translateY(-1px);
         }
 
-        /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: #0f172a; }
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+
+        .loader {
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #3498db;
+            border-radius: 50%;
+            width: 14px;
+            height: 14px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+        }
+
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
@@ -89,7 +100,7 @@
                     <label class="block text-xs uppercase tracking-wider text-slate-400 mb-1 ml-1">Password</label>
                     <input type="password" id="password" class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 focus:outline-none focus:border-sky-500 transition-colors" placeholder="••••••••">
                 </div>
-                <button onclick="handleLogin()" class="w-full btn-luxury py-3 rounded-xl font-semibold mt-4">LOGIN SYSTEM</button>
+                <button onclick="handleLogin()" id="btn-login-action" class="w-full btn-luxury py-3 rounded-xl font-semibold mt-4">LOGIN SYSTEM</button>
             </div>
             <p id="login-error" class="text-red-400 text-xs text-center mt-4 hidden">Username atau password salah.</p>
         </div>
@@ -209,89 +220,149 @@
             <!-- Admin Tab -->
             <div id="content-admin" class="content-section hidden">
                 <div class="glass p-6 rounded-2xl mb-6">
-                    <h3 class="text-lg font-bold mb-4 flex items-center gap-2">
-                        <i data-lucide="settings" class="w-5 h-5"></i> Database Configuration
-                    </h3>
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-bold flex items-center gap-2">
+                            <i data-lucide="settings" class="w-5 h-5"></i> Database Configuration
+                        </h3>
+                        <div id="db-status" class="text-[10px] text-slate-500 flex items-center gap-1">
+                            <div class="w-2 h-2 rounded-full bg-slate-700"></div> Disconnected
+                        </div>
+                    </div>
                     <div class="flex gap-4">
-                        <input type="text" id="sheet-url" placeholder="Paste Google Apps Script URL here" class="flex-1 bg-slate-900 border border-slate-700 rounded-lg p-3 text-xs">
-                        <button onclick="saveSheetUrl()" class="px-6 btn-luxury rounded-lg text-xs font-bold">CONNECT</button>
+                        <input type="password" id="sheet-url" placeholder="Paste Google Apps Script URL here" class="flex-1 bg-slate-900 border border-slate-700 rounded-lg p-3 text-xs focus:border-sky-500 outline-none transition-all">
+                        <button onclick="saveSheetUrl()" id="btn-connect" class="px-6 btn-luxury rounded-lg text-xs font-bold flex items-center gap-2">
+                            <i data-lucide="link" class="w-3 h-3"></i> CONNECT
+                        </button>
                     </div>
                 </div>
                 
                 <div class="glass rounded-2xl overflow-hidden">
-                    <div class="p-4 border-b border-white/5 flex justify-between items-center">
-                        <h3 class="font-bold">User Management</h3>
-                        <button onclick="showAddUserModal()" class="text-xs bg-emerald-500 hover:bg-emerald-600 px-3 py-1 rounded font-bold transition-colors">ADD USER</button>
+                    <div class="p-4 border-b border-white/5 flex justify-between items-center bg-white/5">
+                        <h3 class="font-bold flex items-center gap-2"><i data-lucide="users" class="w-4 h-4"></i> User Management</h3>
+                        <button onclick="showAddUserModal()" class="text-xs bg-sky-500 hover:bg-sky-600 px-4 py-2 rounded-lg font-bold transition-all flex items-center gap-2">
+                            <i data-lucide="user-plus" class="w-3 h-3"></i> ADD NEW USER
+                        </button>
                     </div>
-                    <table class="w-full text-left text-sm">
-                        <thead class="bg-slate-800/50">
-                            <tr>
-                                <th class="p-4">Name</th>
-                                <th class="p-4">Username</th>
-                                <th class="p-4">Password</th>
-                                <th class="p-4">Expired</th>
-                                <th class="p-4">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody id="admin-user-list">
-                            <!-- User data injected here -->
-                        </tbody>
-                    </table>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-sm">
+                            <thead class="bg-slate-800/80 text-slate-400 text-[10px] uppercase tracking-wider">
+                                <tr>
+                                    <th class="p-4">Name</th>
+                                    <th class="p-4">Username</th>
+                                    <th class="p-4">Password</th>
+                                    <th class="p-4">Expired Until</th>
+                                    <th class="p-4 text-center">Sync/Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-user-list" class="divide-y divide-white/5">
+                                <!-- User data injected here -->
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 
         </main>
 
         <!-- Message Box (Custom Modal) -->
-        <div id="msg-box" class="fixed inset-0 z-[60] hidden flex items-center justify-center bg-black/60 backdrop-blur-sm">
-            <div class="glass p-8 rounded-2xl max-w-xs w-full text-center">
+        <div id="msg-box" class="fixed inset-0 z-[60] hidden flex items-center justify-center bg-black/80 backdrop-blur-md">
+            <div class="glass p-8 rounded-3xl max-w-xs w-full text-center border-sky-500/30">
                 <div id="msg-icon" class="mb-4 text-sky-400"></div>
                 <p id="msg-text" class="text-sm font-medium mb-6"></p>
-                <button onclick="closeMsg()" class="w-full py-2 bg-slate-700 hover:bg-slate-600 rounded-lg text-sm transition-colors">OK</button>
+                <button onclick="closeMsg()" class="w-full py-3 bg-sky-500 hover:bg-sky-600 rounded-xl text-sm font-bold transition-colors shadow-lg shadow-sky-500/20">CONFIRM</button>
             </div>
         </div>
     </div>
 
     <script>
         // State Management
+        let sheetUrl = localStorage.getItem('skyops_sheet_url') || "";
         let currentUser = null;
         let users = [
-            { name: "SkyOps Admin", username: "admin", password: "ramdan28", expired: "2099-12-31", isAdmin: true },
-            { name: "Demo User", username: "user1", password: "123", expired: "2025-12-31", isAdmin: false }
+            { name: "SkyOps Admin", username: "admin", password: "ramdan28", expired: "2099-12-31", isAdmin: true }
         ];
         let map = null;
 
-        // Initialize Lucide Icons
         lucide.createIcons();
 
         window.onload = () => {
-            // Splash sequence
+            if (sheetUrl) {
+                document.getElementById('sheet-url').value = sheetUrl;
+                updateDbStatus(true);
+                fetchUsersFromSheet();
+            }
+
             setTimeout(() => {
                 const splashContent = document.getElementById('splash-content');
-                splashContent.classList.remove('fade-in');
                 splashContent.classList.add('fade-out');
                 
                 setTimeout(() => {
                     document.getElementById('splash').classList.add('hidden');
                     document.getElementById('login-page').classList.remove('hidden');
                 }, 1500);
-            }, 3000);
+            }, 2500);
             
             initMap();
         };
 
-        function initMap() {
-            map = L.map('map', {
-                zoomControl: false,
-                attributionControl: false
-            }).setView([-6.2088, 106.8456], 10);
-            
-            L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
-                maxZoom: 19
-            }).addTo(map);
+        function updateDbStatus(connected) {
+            const status = document.getElementById('db-status');
+            status.innerHTML = connected 
+                ? `<div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div> Cloud Connected`
+                : `<div class="w-2 h-2 rounded-full bg-slate-700"></div> Disconnected`;
+        }
 
-            // Force resize map on tab switch
-            setTimeout(() => map.invalidateSize(), 500);
+        async function fetchUsersFromSheet() {
+            if (!sheetUrl) return;
+            try {
+                const response = await fetch(sheetUrl);
+                const data = await response.json();
+                if (Array.isArray(data)) {
+                    // Simpan admin lokal tetap ada
+                    const admin = users[0];
+                    users = [admin, ...data.filter(u => u.username !== 'admin')];
+                    if (currentUser && currentUser.isAdmin) renderAdminUsers();
+                }
+            } catch (e) {
+                console.error("Fetch error:", e);
+            }
+        }
+
+        async function syncUserToSheet(index) {
+            if (!sheetUrl) {
+                showMsg("Connect Google Sheet URL first!", "alert-triangle");
+                return;
+            }
+
+            const user = users[index];
+            const btn = document.getElementById(`sync-btn-${index}`);
+            const originalContent = btn.innerHTML;
+            
+            btn.innerHTML = `<div class="loader"></div>`;
+            btn.disabled = true;
+
+            try {
+                await fetch(sheetUrl, {
+                    method: 'POST',
+                    mode: 'no-cors', // Apps Script requires no-cors for simple posts
+                    cache: 'no-cache',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(user)
+                });
+                
+                // Karena no-cors tidak bisa baca response, kita asumsikan sukses jika tidak error
+                showMsg(`User ${user.username} synced to cloud!`, "cloud-lightning");
+            } catch (e) {
+                showMsg("Sync failed. Check connection.", "x-circle");
+            } finally {
+                btn.innerHTML = originalContent;
+                btn.disabled = false;
+            }
+        }
+
+        function initMap() {
+            map = L.map('map', { zoomControl: false, attributionControl: false }).setView([-6.2088, 106.8456], 10);
+            L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png').addTo(map);
         }
 
         function handleLogin() {
@@ -302,12 +373,11 @@
             const user = users.find(u => u.username === userIn && u.password === passIn);
 
             if (user) {
-                // Check expiry
                 const now = new Date();
                 const expiry = new Date(user.expired);
                 
                 if (now > expiry && !user.isAdmin) {
-                    showMsg("License Expired!", "access-denied");
+                    showMsg("Access Expired! Contact Admin.", "lock");
                     return;
                 }
 
@@ -322,7 +392,7 @@
         function loginSuccess() {
             document.getElementById('login-page').classList.add('hidden');
             document.getElementById('main-dashboard').classList.remove('hidden');
-            document.getElementById('welcome-greeting').innerText = `Welcome, ${currentUser.name}`;
+            document.getElementById('welcome-greeting').innerText = `Welcome, Captain ${currentUser.name}`;
             document.getElementById('expiry-info').innerText = `Valid Until: ${currentUser.expired}`;
             
             if (currentUser.isAdmin) {
@@ -331,35 +401,24 @@
             } else {
                 document.getElementById('admin-tab-btn').classList.add('hidden');
             }
-
-            map.invalidateSize();
+            setTimeout(() => map.invalidateSize(), 400);
         }
 
         function logout() {
             currentUser = null;
             document.getElementById('main-dashboard').classList.add('hidden');
             document.getElementById('login-page').classList.remove('hidden');
-            document.getElementById('username').value = "";
-            document.getElementById('password').value = "";
         }
 
         function switchTab(tabId) {
-            // UI Update
-            const sections = document.querySelectorAll('.content-section');
-            sections.forEach(s => s.classList.add('hidden'));
+            document.querySelectorAll('.content-section').forEach(s => s.classList.add('hidden'));
             document.getElementById(`content-${tabId}`).classList.remove('hidden');
 
-            const tabs = document.querySelectorAll('nav button');
-            tabs.forEach(t => t.classList.remove('tab-active', 'text-white'));
-            tabs.forEach(t => t.classList.add('text-slate-400'));
-
+            document.querySelectorAll('nav button').forEach(t => t.classList.remove('tab-active', 'text-white'));
             const activeTab = document.getElementById(`tab-${tabId}`) || document.getElementById('admin-tab-btn');
             activeTab.classList.add('tab-active', 'text-white');
-            activeTab.classList.remove('text-slate-400');
 
-            if (tabId === 'map') {
-                setTimeout(() => map.invalidateSize(), 200);
-            }
+            if (tabId === 'map') setTimeout(() => map.invalidateSize(), 200);
         }
 
         function renderAdminUsers() {
@@ -367,14 +426,21 @@
             tbody.innerHTML = "";
             users.forEach((u, index) => {
                 const tr = document.createElement('tr');
-                tr.className = "hover:bg-white/5 border-b border-white/5";
+                tr.className = "hover:bg-white/5 transition-colors group";
                 tr.innerHTML = `
-                    <td class="p-4"><input type="text" value="${u.name}" onchange="updateUser(${index}, 'name', this.value)" class="bg-transparent border-b border-transparent focus:border-sky-500 outline-none"></td>
-                    <td class="p-4"><input type="text" value="${u.username}" onchange="updateUser(${index}, 'username', this.value)" class="bg-transparent border-b border-transparent focus:border-sky-500 outline-none"></td>
-                    <td class="p-4"><input type="password" value="${u.password}" onchange="updateUser(${index}, 'password', this.value)" class="bg-transparent border-b border-transparent focus:border-sky-500 outline-none"></td>
-                    <td class="p-4"><input type="date" value="${u.expired}" onchange="updateUser(${index}, 'expired', this.value)" class="bg-transparent border-b border-transparent focus:border-sky-500 outline-none text-xs"></td>
+                    <td class="p-4"><input type="text" value="${u.name}" onchange="updateUserLocal(${index}, 'name', this.value)" class="bg-transparent border-b border-transparent focus:border-sky-500 outline-none w-full"></td>
+                    <td class="p-4 font-mono text-xs text-sky-400">${u.username}</td>
+                    <td class="p-4"><input type="text" value="${u.password}" onchange="updateUserLocal(${index}, 'password', this.value)" class="bg-transparent border-b border-transparent focus:border-sky-500 outline-none w-full"></td>
+                    <td class="p-4"><input type="date" value="${u.expired}" onchange="updateUserLocal(${index}, 'expired', this.value)" class="bg-transparent border-b border-transparent focus:border-sky-500 outline-none text-xs text-slate-400"></td>
                     <td class="p-4">
-                        <button onclick="deleteUser(${index})" class="text-red-400 hover:text-red-300 ${u.isAdmin ? 'hidden' : ''}"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                        <div class="flex items-center justify-center gap-2">
+                            <button id="sync-btn-${index}" onclick="syncUserToSheet(${index})" class="p-2 rounded-lg bg-sky-500/10 text-sky-400 hover:bg-sky-500 hover:text-white transition-all border border-sky-500/20" title="Sync to Cloud">
+                                <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                            </button>
+                            <button onclick="deleteUser(${index})" class="p-2 rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-white transition-all border border-red-500/20 ${u.isAdmin ? 'opacity-0 pointer-events-none' : ''}">
+                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                            </button>
+                        </div>
                     </td>
                 `;
                 tbody.appendChild(tr);
@@ -382,34 +448,42 @@
             lucide.createIcons();
         }
 
-        function updateUser(index, field, value) {
+        function updateUserLocal(index, field, value) {
             users[index][field] = value;
-            showMsg(`Data updated successfully!`, "check-circle");
         }
 
         function deleteUser(index) {
-            users.splice(index, 1);
-            renderAdminUsers();
+            if(confirm("Hapus user ini?")) {
+                users.splice(index, 1);
+                renderAdminUsers();
+            }
         }
 
-        function showAddUserModal() {
-            const name = prompt("Enter Full Name:");
-            const user = prompt("Enter Username:");
-            const pass = prompt("Enter Password:");
-            const exp = prompt("Enter Expiry (YYYY-MM-DD):", "2025-12-31");
+        async function showAddUserModal() {
+            const name = prompt("Full Name:");
+            const user = prompt("Username:");
+            const pass = prompt("Password:");
+            const exp = prompt("Expiry (YYYY-MM-DD):", new Date(Date.now() + 30*24*60*60*1000).toISOString().split('T')[0]);
             
             if (name && user && pass) {
-                users.push({ name, username: user, password: pass, expired: exp, isAdmin: false });
+                const newUser = { name, username: user, password: pass, expired: exp, isAdmin: false };
+                users.push(newUser);
                 renderAdminUsers();
+                
+                // Otomatis sinkronisasi
+                const newIndex = users.length - 1;
+                await syncUserToSheet(newIndex);
             }
         }
 
         function saveSheetUrl() {
             const url = document.getElementById('sheet-url').value;
             if (url) {
-                showMsg("Connecting to Cloud Database...", "refresh-cw");
-                // Implementasi fetch real bisa diletakkan di sini
-                setTimeout(() => showMsg("Connected to Google Sheets!", "check-circle"), 2000);
+                sheetUrl = url;
+                localStorage.setItem('skyops_sheet_url', url);
+                updateDbStatus(true);
+                showMsg("Database URL Saved & Connected!", "check-circle");
+                fetchUsersFromSheet();
             }
         }
 
@@ -417,11 +491,9 @@
             const box = document.getElementById('msg-box');
             const icon = document.getElementById('msg-icon');
             const txt = document.getElementById('msg-text');
-            
             txt.innerText = text;
-            icon.innerHTML = `<i data-lucide="${iconName}" class="w-12 h-12 mx-auto"></i>`;
+            icon.innerHTML = `<i data-lucide="${iconName}" class="w-16 h-16 mx-auto mb-2"></i>`;
             lucide.createIcons();
-            
             box.classList.remove('hidden');
         }
 
