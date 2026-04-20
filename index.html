@@ -31,6 +31,7 @@
         
         .leaflet-popup-content-wrapper { background: rgba(15, 23, 42, 0.95) !important; color: white !important; border: 1px solid rgba(56, 189, 248, 0.3) !important; backdrop-filter: blur(8px); border-radius: 12px !important; box-shadow: 0 10px 25px rgba(0,0,0,0.5) !important; }
         .leaflet-popup-tip { background: rgba(15, 23, 42, 0.95) !important; border: 1px solid rgba(56, 189, 248, 0.3); }
+        .leaflet-popup-content { margin: 12px !important; line-height: 1.4 !important; }
         
         .icon-vfr { background: #f97316; width: 14px; height: 14px; border-radius: 2px; display: inline-block; border: 1px solid rgba(255,255,255,0.3); }
         .icon-airport { background: #2563eb; width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; border: 1px solid rgba(255,255,255,0.3); }
@@ -41,7 +42,7 @@
 <body>
 
     <!-- Splash Screen -->
-    <div id="splash" class="fixed inset-0 z-[200] flex flex-col items-center justify-center bg-slate-950 text-white">
+    <div id="splash" class="fixed inset-0 z-[1000] flex flex-col items-center justify-center bg-slate-950 text-white">
         <div class="text-center" id="splash-content">
             <img src="https://lh3.googleusercontent.com/d/1HzKe-3FS_hP-MjbOHc-mkyierhu5kVp-" alt="Logo" class="w-32 h-32 mx-auto mb-6 object-contain" />
             <h1 class="text-3xl font-bold tracking-widest text-sky-400 uppercase">SkyOps</h1>
@@ -54,7 +55,7 @@
         <div class="absolute inset-0 bg-slate-950/80"></div>
         <div class="relative glass p-10 rounded-3xl w-full max-w-md mx-4 fade-in text-white text-center">
             <img src="https://lh3.googleusercontent.com/d/1HzKe-3FS_hP-MjbOHc-mkyierhu5kVp-" alt="Logo" class="w-20 h-20 mx-auto mb-4" />
-            <h2 class="text-2xl font-bold uppercase tracking-tight mb-8">Secure Access</h2>
+            <h2 class="text-2xl font-bold uppercase tracking-tight mb-8 tracking-widest">Secure Access</h2>
             <div class="space-y-4 text-left">
                 <input type="text" id="username" class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 text-white focus:border-sky-500 outline-none" placeholder="Username">
                 <input type="password" id="password" class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 text-white focus:border-sky-500 outline-none" placeholder="Password">
@@ -87,21 +88,21 @@
             <button id="admin-tab-btn" onclick="switchTab('admin')" class="hidden flex-shrink-0 py-4 px-2 flex items-center gap-2 text-[10px] font-bold uppercase text-amber-500"><i data-lucide="shield-check" class="w-4 h-4"></i> Admin</button>
         </nav>
 
-        <main class="flex-1 p-4 overflow-y-auto">
-            <div id="content-map" class="content-section h-full relative text-white">
+        <main class="flex-1 p-4 overflow-y-auto text-white">
+            <div id="content-map" class="content-section h-full relative">
                 <div id="map"></div>
                 <div onclick="locateUser()" class="absolute bottom-6 right-6 z-[1000] w-12 h-12 bg-sky-600 text-white rounded-full flex items-center justify-center shadow-xl cursor-pointer hover:bg-sky-500 transition-all shadow-sky-600/20"><i data-lucide="locate" class="w-6 h-6"></i></div>
             </div>
 
-            <div id="content-route" class="content-section hidden text-white">
+            <div id="content-route" class="content-section hidden">
                 <div class="flex justify-between items-center mb-6">
                     <h2 class="text-xl font-bold uppercase tracking-widest"><i data-lucide="navigation-2" class="text-sky-400 inline mb-1 mr-1"></i> Route Manager</h2>
                     <button onclick="openRouteModal()" class="btn-luxury px-6 py-2 rounded-xl text-[10px] font-bold uppercase tracking-widest text-white">+ Add New Route</button>
                 </div>
-                <div id="route-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-white"></div>
+                <div id="route-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
             </div>
 
-            <div id="content-waypoint" class="content-section hidden text-white">
+            <div id="content-waypoint" class="content-section hidden">
                 <div class="flex flex-col md:flex-row justify-between gap-4 mb-6">
                     <h2 class="text-xl font-bold uppercase tracking-widest">Waypoint Database</h2>
                     <div class="flex gap-2">
@@ -118,15 +119,15 @@
                 </div>
             </div>
 
-            <div id="content-aircraft" class="content-section hidden text-white">
+            <div id="content-aircraft" class="content-section hidden">
                 <div class="flex justify-between items-center mb-6">
                     <h2 class="text-xl font-bold uppercase tracking-widest">Aircraft Fleet</h2>
                     <button onclick="openAircraftModal()" class="btn-luxury px-6 py-2 rounded-xl text-[10px] font-bold uppercase tracking-widest text-white">+ Add Profile</button>
                 </div>
-                <div id="aircraft-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-white"></div>
+                <div id="aircraft-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
             </div>
 
-            <div id="content-admin" class="content-section hidden text-white">
+            <div id="content-admin" class="content-section hidden">
                 <div class="glass p-6 rounded-3xl mb-6 border border-white/5">
                     <h3 class="text-xs font-bold mb-4 uppercase text-slate-400 tracking-widest">Cloud Database Connection</h3>
                     <div class="flex gap-2">
@@ -135,7 +136,7 @@
                     </div>
                     <div id="db-status" class="mt-2 text-[9px] text-slate-500 uppercase tracking-widest font-bold">Disconnected</div>
                 </div>
-                <div class="glass rounded-3xl overflow-hidden text-white">
+                <div class="glass rounded-3xl overflow-hidden">
                     <div class="p-4 border-b border-white/5 font-bold uppercase text-[9px] tracking-widest text-slate-400">User Access Management</div>
                     <table class="w-full text-left text-xs"><tbody id="admin-user-list"></tbody></table>
                 </div>
@@ -144,12 +145,10 @@
     </div>
 
     <!-- Modals -->
-
-    <!-- Waypoint Info Modal -->
-    <div id="waypoint-modal" class="fixed inset-0 z-[150] hidden flex items-center justify-center bg-black/90 backdrop-blur-md">
+    <div id="waypoint-modal" class="fixed inset-0 z-[2000] hidden flex items-center justify-center bg-black/90 backdrop-blur-md">
         <div class="glass p-8 rounded-3xl max-w-2xl w-full mx-4 border-sky-500/30 text-white">
             <h3 id="waypoint-modal-title" class="text-xl font-bold mb-6 text-sky-400 uppercase tracking-widest text-center">Waypoint Info</h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-left">
                 <div class="space-y-4">
                     <input type="text" id="wp-name" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-sm text-white outline-none focus:border-sky-500" placeholder="Name">
                     <select id="wp-type" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-sm text-white outline-none">
@@ -157,7 +156,7 @@
                     </select>
                     <div class="flex gap-2">
                         <input type="number" id="wp-elevation" class="flex-1 bg-slate-900 border border-slate-700 rounded-xl p-3 text-sm text-white outline-none focus:border-sky-500" placeholder="Elevation (FT)">
-                        <button onclick="syncElevation()" class="p-3 bg-slate-800 rounded-xl text-sky-400 hover:bg-slate-700 transition-colors"><i data-lucide="refresh-ccw"></i></button>
+                        <button onclick="syncElevation()" class="p-3 bg-slate-800 rounded-xl text-sky-400 hover:bg-slate-700"><i data-lucide="refresh-ccw"></i></button>
                     </div>
                 </div>
                 <div class="space-y-4">
@@ -169,14 +168,8 @@
                         <input type="number" id="wp-lon-dec" step="any" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-sm text-white outline-none focus:border-sky-500" placeholder="Longitude">
                     </div>
                     <div id="mode-dms" class="hidden grid grid-cols-4 gap-1">
-                        <input type="number" id="lat-d" placeholder="D" class="bg-slate-900 border border-slate-700 p-2 text-xs rounded text-white outline-none">
-                        <input type="number" id="lat-m" placeholder="M" class="bg-slate-900 border border-slate-700 p-2 text-xs rounded text-white outline-none">
-                        <input type="number" id="lat-s" placeholder="S" class="bg-slate-900 border border-slate-700 p-2 text-xs rounded text-white outline-none">
-                        <select id="lat-dir" class="bg-slate-900 border border-slate-700 p-2 text-xs rounded text-white outline-none"><option value="N">N</option><option value="S">S</option></select>
-                        <input type="number" id="lon-d" placeholder="D" class="bg-slate-900 border border-slate-700 p-2 text-xs rounded text-white outline-none">
-                        <input type="number" id="lon-m" placeholder="M" class="bg-slate-900 border border-slate-700 p-2 text-xs rounded text-white outline-none">
-                        <input type="number" id="lon-s" placeholder="S" class="bg-slate-900 border border-slate-700 p-2 text-xs rounded text-white outline-none">
-                        <select id="lon-dir" class="bg-slate-900 border border-slate-700 p-2 text-xs rounded text-white outline-none"><option value="E">E</option><option value="W">W</option></select>
+                        <input type="number" id="lat-d" placeholder="D" class="bg-slate-900 border border-slate-700 p-2 text-xs rounded text-white outline-none"><input type="number" id="lat-m" placeholder="M" class="bg-slate-900 border border-slate-700 p-2 text-xs rounded text-white outline-none"><input type="number" id="lat-s" placeholder="S" class="bg-slate-900 border border-slate-700 p-2 text-xs rounded text-white outline-none"><select id="lat-dir" class="bg-slate-900 border border-slate-700 p-2 text-xs rounded text-white outline-none"><option value="N">N</option><option value="S">S</option></select>
+                        <input type="number" id="lon-d" placeholder="D" class="bg-slate-900 border border-slate-700 p-2 text-xs rounded text-white outline-none"><input type="number" id="lon-m" placeholder="M" class="bg-slate-900 border border-slate-700 p-2 text-xs rounded text-white outline-none"><input type="number" id="lon-s" placeholder="S" class="bg-slate-900 border border-slate-700 p-2 text-xs rounded text-white outline-none"><select id="lon-dir" class="bg-slate-900 border border-slate-700 p-2 text-xs rounded text-white outline-none"><option value="E">E</option><option value="W">W</option></select>
                     </div>
                 </div>
             </div>
@@ -187,12 +180,12 @@
         </div>
     </div>
 
-    <!-- Bulk Modal (FIXED: Re-added missing HTML) -->
-    <div id="bulk-modal" class="fixed inset-0 z-[150] hidden flex items-center justify-center bg-black/95 backdrop-blur-md">
+    <!-- Bulk Modal -->
+    <div id="bulk-modal" class="fixed inset-0 z-[2100] hidden flex items-center justify-center bg-black/95 backdrop-blur-md">
         <div class="glass p-8 rounded-3xl max-w-2xl w-full mx-4 border-sky-500/30 text-white">
             <h3 class="text-xl font-bold mb-4 uppercase text-sky-400 tracking-widest text-center">Bulk Import Waypoints</h3>
             <p class="text-[10px] text-slate-400 mb-4 uppercase text-center">Format: NAME LAT(DMS) LON(DMS) TYPE (Contoh: RANDU S07 06'10" E109 19'31" VFR)</p>
-            <textarea id="bulk-input" rows="10" class="w-full bg-slate-950 border border-slate-700 rounded-2xl p-4 text-xs font-mono text-white outline-none focus:border-sky-500" placeholder="Contoh:&#10;RANDU S07 06'10&quot; E109 19'31&quot; VFR&#10;KLEGO S07 15'00&quot; E110 45'30&quot; AIRPORT"></textarea>
+            <textarea id="bulk-input" rows="10" class="w-full bg-slate-950 border border-slate-700 rounded-2xl p-4 text-xs font-mono text-white outline-none focus:border-sky-500" placeholder="Format:&#10;RANDU S07 06'10&quot; E109 19'31&quot; VFR"></textarea>
             <div class="flex gap-4 mt-6">
                 <button onclick="closeBulkModal()" class="flex-1 py-3 bg-slate-800 rounded-xl font-bold uppercase tracking-widest text-[10px]">Cancel</button>
                 <button onclick="processBulkImport()" id="btn-process-bulk" class="flex-1 btn-luxury py-3 rounded-xl font-bold uppercase tracking-widest text-[10px]">Import Now</button>
@@ -201,8 +194,8 @@
     </div>
 
     <!-- Route Modal -->
-    <div id="route-modal" class="fixed inset-0 z-[120] hidden flex items-center justify-center bg-black/95 backdrop-blur-lg">
-        <div class="glass p-6 md:p-8 rounded-3xl max-w-5xl w-full h-[90vh] overflow-y-auto mx-4 border-sky-500/30 shadow-2xl text-white">
+    <div id="route-modal" class="fixed inset-0 z-[1500] hidden flex items-center justify-center bg-black/95 backdrop-blur-lg">
+        <div class="glass p-6 md:p-8 rounded-3xl max-w-5xl w-full h-[90vh] overflow-y-auto mx-4 border-sky-500/30 shadow-2xl text-white text-left">
             <div class="flex justify-between items-center mb-6">
                 <h3 id="route-modal-title" class="text-2xl font-bold flex items-center gap-2 uppercase tracking-widest"><i data-lucide="map-pinned" class="text-sky-400"></i> Operational Flight Plan</h3>
                 <div class="flex items-center gap-4">
@@ -213,14 +206,14 @@
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 text-white">
                 <div><label class="block text-[9px] uppercase text-slate-500 font-bold mb-1 ml-1">Route Name</label><input type="text" id="route-name" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-sm font-bold uppercase text-white outline-none focus:border-sky-500"></div>
                 <div><label class="block text-[9px] uppercase text-slate-500 font-bold mb-1 ml-1">Aircraft</label><select id="route-ac-select" onchange="onRouteAircraftSelect()" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-sm text-white outline-none"></select></div>
-                <div class="grid grid-cols-2 gap-2">
+                <div class="grid grid-cols-2 gap-2 text-left">
                     <div><label class="block text-[9px] uppercase text-slate-500 font-bold mb-1 ml-1">Speed</label><input type="number" id="route-speed" oninput="recalculateOFP()" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-sm text-white outline-none focus:border-sky-500"></div>
                     <div><label class="block text-[9px] uppercase text-slate-500 font-bold mb-1 ml-1">Fuel Burn</label><div class="flex items-center bg-slate-900 border border-slate-700 rounded-xl p-3 text-white"><input type="number" id="route-fuel-burn" oninput="recalculateTotals()" class="w-full bg-transparent text-sm outline-none"><span id="route-fuel-unit-label" class="text-[9px] font-bold text-slate-500 uppercase">--</span></div></div>
                 </div>
             </div>
-            <div class="mb-6"><label class="block text-[9px] uppercase text-slate-500 font-bold mb-1 ml-1">Fuel Onboard</label><input type="number" id="route-fuel-onboard" oninput="recalculateTotals()" class="w-full md:w-48 bg-slate-900 border border-slate-700 rounded-xl p-3 text-sm text-white outline-none focus:border-sky-500" placeholder="0"></div>
+            <div class="mb-6 text-white text-left"><label class="block text-[9px] uppercase text-slate-500 font-bold mb-1 ml-1">Fuel Onboard</label><input type="number" id="route-fuel-onboard" oninput="recalculateTotals()" class="w-full md:w-48 bg-slate-900 border border-slate-700 rounded-xl p-3 text-sm text-white outline-none focus:border-sky-500" placeholder="0"></div>
             
-            <div class="overflow-x-auto">
+            <div class="overflow-x-auto text-white">
                 <table class="w-full text-left text-xs border-separate border-spacing-y-1">
                     <thead><tr class="text-slate-400 uppercase text-[9px] tracking-widest"><th class="p-3">Waypoint</th><th class="p-3">Heading</th><th class="p-3">Dist (Nm)</th><th class="p-3">EET (Min)</th><th class="p-3 text-center">Action</th></tr></thead>
                     <tbody id="ofp-body" class="text-white"></tbody>
@@ -228,10 +221,10 @@
             </div>
 
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8 pt-6 border-t border-white/5">
-                <div class="bg-slate-900/40 p-4 rounded-2xl border border-white/5"><span class="block text-[9px] text-slate-500 uppercase font-bold">Total Distance</span><span id="sum-distance" class="text-lg font-bold text-sky-400">0 Nm</span></div>
-                <div class="bg-slate-900/40 p-4 rounded-2xl border border-white/5"><span class="block text-[9px] text-slate-500 uppercase font-bold">Total EET</span><span id="sum-eet" class="text-lg font-bold text-sky-400">0 Min</span></div>
-                <div class="bg-slate-900/40 p-4 rounded-2xl border border-white/5"><span class="block text-[9px] text-slate-500 uppercase font-bold">Fuel Required</span><span id="sum-fuel-req" class="text-lg font-bold text-amber-400">0</span></div>
-                <div class="bg-slate-900/40 p-4 rounded-2xl border border-white/5"><span class="block text-[9px] text-slate-500 uppercase font-bold">Fuel Sisa</span><span id="sum-fuel-rem" class="text-lg font-bold text-emerald-400">0</span></div>
+                <div class="bg-slate-900/40 p-4 rounded-2xl border border-white/5 text-center"><span class="block text-[9px] text-slate-500 uppercase font-bold">Total Distance</span><span id="sum-distance" class="text-lg font-bold text-sky-400">0 Nm</span></div>
+                <div class="bg-slate-900/40 p-4 rounded-2xl border border-white/5 text-center"><span class="block text-[9px] text-slate-500 uppercase font-bold">Total EET</span><span id="sum-eet" class="text-lg font-bold text-sky-400">0 Min</span></div>
+                <div class="bg-slate-900/40 p-4 rounded-2xl border border-white/5 text-center"><span class="block text-[9px] text-slate-500 uppercase font-bold">Fuel Required</span><span id="sum-fuel-req" class="text-lg font-bold text-amber-400">0</span></div>
+                <div class="bg-slate-900/40 p-4 rounded-2xl border border-white/5 text-center"><span class="block text-[9px] text-slate-500 uppercase font-bold">Fuel Sisa</span><span id="sum-fuel-rem" class="text-lg font-bold text-emerald-400">0</span></div>
             </div>
 
             <div class="flex gap-4 mt-10"><button onclick="closeRouteModal()" class="flex-1 py-4 bg-slate-800 rounded-xl font-bold uppercase text-[10px] text-slate-300">Cancel</button><button onclick="saveRoute()" class="flex-1 btn-luxury py-4 rounded-xl font-bold uppercase text-[10px] text-white">Save & Sync Route</button></div>
@@ -239,10 +232,10 @@
     </div>
 
     <!-- Aircraft Modal -->
-    <div id="aircraft-modal" class="fixed inset-0 z-[130] hidden flex items-center justify-center bg-black/90 backdrop-blur-md">
+    <div id="aircraft-modal" class="fixed inset-0 z-[1500] hidden flex items-center justify-center bg-black/90 backdrop-blur-md">
         <div class="glass p-8 rounded-3xl max-w-2xl w-full mx-4 text-white">
             <h3 id="aircraft-modal-title" class="text-xl font-bold mb-6 text-sky-400 uppercase tracking-widest text-center">Aircraft Profile</h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-left">
                 <div class="space-y-4 text-white">
                     <input list="ac-types" id="ac-type" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-sm text-white outline-none focus:border-sky-500" placeholder="Type">
                     <datalist id="ac-types"><option value="Gulfstream IV SP"><option value="Beechcraft King Air 350i"><option value="Bell 412 EP"></datalist>
@@ -252,7 +245,7 @@
                 <div class="space-y-4 text-white">
                     <input type="number" id="ac-speed" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-sm outline-none text-white focus:border-sky-500" placeholder="Cruise Speed (Kts)">
                     <div class="flex gap-2">
-                        <input type="number" id="ac-fuel" class="flex-1 bg-slate-900 border border-slate-700 rounded-xl p-3 text-sm text-white outline-none focus:border-sky-500" placeholder="Fuel Burn">
+                        <input type="number" id="ac-fuel" class="flex-1 bg-slate-900 border border-slate-700 rounded-xl p-3 text-sm text-white focus:border-sky-500" placeholder="Fuel Burn">
                         <select id="ac-fuel-unit" class="bg-slate-800 p-2 rounded-xl text-xs text-white"><option value="lbs">lbs</option><option value="kg">kg</option><option value="liter">liter</option></select>
                     </div>
                 </div>
@@ -264,21 +257,12 @@
         </div>
     </div>
 
-    <!-- WP Search/Select Modal -->
-    <div id="wp-selector-modal" class="fixed inset-0 z-[160] hidden flex items-center justify-center bg-black/80 backdrop-blur-md">
+    <!-- WP Selection Modal -->
+    <div id="wp-selector-modal" class="fixed inset-0 z-[1800] hidden flex items-center justify-center bg-black/80 backdrop-blur-md text-left">
         <div class="glass p-6 rounded-3xl max-w-lg w-full mx-4 border-sky-500/20 shadow-2xl text-white">
             <div class="flex justify-between items-center mb-4"><h4 class="font-bold uppercase text-xs tracking-widest text-white">Select Waypoint</h4><button onclick="closeWpSelector()" class="text-slate-400"><i data-lucide="x"></i></button></div>
             <input type="text" id="wp-sel-search" oninput="renderWpSelector()" placeholder="Search Name..." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2 text-sm text-white outline-none mb-4 focus:border-sky-500">
             <div class="max-h-64 overflow-y-auto space-y-1 no-scrollbar" id="wp-sel-list"></div>
-        </div>
-    </div>
-
-    <!-- Message Box -->
-    <div id="msg-box" class="fixed inset-0 z-[300] hidden flex items-center justify-center bg-black/80 backdrop-blur-md">
-        <div class="glass p-8 rounded-3xl max-w-xs w-full text-center border-sky-500/30 shadow-2xl">
-            <div id="msg-icon" class="mb-4 text-sky-400"></div>
-            <p id="msg-text" class="text-sm font-medium mb-6 text-white uppercase text-[10px] tracking-widest"></p>
-            <button onclick="closeMsg()" class="w-full py-3 bg-sky-600 rounded-xl font-bold uppercase text-[10px]">Confirm</button>
         </div>
     </div>
 
@@ -295,13 +279,11 @@
         let map = null, wpLayerGroup = null, activeRouteLine = null;
         let currentEditWpId = null, currentEditAcReg = null, currentEditRouteIdx = null;
 
-        lucide.createIcons();
-
         // --- Core Helpers ---
         function calcDistance(lat1, lon1, lat2, lon2) { const R = 3440; const dLat = (lat2-lat1)*Math.PI/180; const dLon = (lon2-lon1)*Math.PI/180; const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)**2; return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); }
         function calcHeading(lat1, lon1, lat2, lon2) { const y = Math.sin((lon2-lon1)*Math.PI/180)*Math.cos(lat2*Math.PI/180); const x = Math.cos(lat1*Math.PI/180)*Math.sin(lat2*Math.PI/180)-Math.sin(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.cos((lon2-lon1)*Math.PI/180); return (Math.atan2(y, x)*180/Math.PI + 360) % 360; }
         function convertToDMS(decimal, type) { const abs = Math.abs(decimal); const d = Math.floor(abs); const m = Math.floor((abs - d) * 60); const s = Math.round((abs - d - m/60) * 3600); const dir = type === 'lat' ? (decimal >= 0 ? "N" : "S") : (decimal >= 0 ? "E" : "W"); return `${dir}${d.toString().padStart(2,'0')}°${m.toString().padStart(2,'0')}'${s.toString().padStart(2,'0')}"`; }
-        function dmsToDecimal(d,m,s,dir) { let res = parseFloat(d) + parseFloat(m)/60 + parseFloat(s)/3600; return (dir==='S'||dir==='W') ? res*-1 : res; }
+        function dmsToDecimal(d,m,s,dir) { let res = parseFloat(d || 0) + parseFloat(m || 0)/60 + parseFloat(s || 0)/3600; return (dir==='S'||dir==='W') ? res*-1 : res; }
         function decimalToDMSParts(decimal, type) { const absolute = Math.abs(decimal); const d = Math.floor(absolute); const m = Math.floor((absolute - d) * 60); const s = Math.round((absolute - d - m/60) * 3600); const dir = type === 'lat' ? (decimal >= 0 ? "N" : "S") : (decimal >= 0 ? "E" : "W"); return { d, m, s, dir }; }
 
         // --- Init & Sync ---
@@ -311,17 +293,20 @@
             renderAircraftProfiles();
             renderSavedRoutes();
             if (sheetUrl) { updateDbStatus(true); syncAllData(); }
-            
             setTimeout(() => {
-                const sp = document.getElementById('splash');
+                const splash = document.getElementById('splash');
                 const sc = document.getElementById('splash-content');
                 if(sc) sc.classList.add('fade-out');
                 setTimeout(() => {
-                    if(sp) sp.classList.add('hidden');
+                    if(splash) splash.classList.add('hidden');
                     document.getElementById('login-page').classList.remove('hidden');
                 }, 1000);
             }, 2000);
         };
+
+        // --- GLOBAL ACTIONS ---
+        window.deleteRoute = (i) => { if(confirm("Delete this route?")) { savedRoutes.splice(i,1); localStorage.setItem('skyops_routes', JSON.stringify(savedRoutes)); renderSavedRoutes(); if(activeRouteLine) map.removeLayer(activeRouteLine); } };
+        window.deleteAircraft = (reg) => { if(confirm("Delete aircraft?")) { aircraftProfiles = aircraftProfiles.filter(a=>a.registration!==reg); localStorage.setItem('skyops_aircraft', JSON.stringify(aircraftProfiles)); renderAircraftProfiles(); } };
 
         // --- Map Logic ---
         function initMap() {
@@ -341,7 +326,7 @@
                 let iconHtml = wp.type === 'VFR' ? '<div class="icon-vfr"></div>' : (wp.type === 'AIRPORT' ? '<div class="icon-airport"><i data-lucide="plane" class="w-3 h-3"></i></div>' : '<div class="icon-heliport text-pink-400 font-bold">H</div>');
                 const marker = L.marker([wp.lat, wp.lon], { icon: L.divIcon({ className: 'div-wp-marker', html: `<div class="flex flex-col items-center">${iconHtml}</div>`, iconSize: [24, 24], iconAnchor: [12, 12] }) }).addTo(wpLayerGroup);
                 const dmsStr = `${convertToDMS(wp.lat,'lat')} ${convertToDMS(wp.lon,'lon')}`;
-                marker.bindPopup(`<div class="p-1 min-w-[180px] font-sans text-white"><div class="text-sky-400 font-bold text-lg border-b border-white/10 pb-1 mb-2 tracking-tight uppercase">${wp.name}</div><div class="text-[9px] text-slate-400 mb-1 uppercase font-bold tracking-widest">Coords (DMS)</div><div class="text-xs font-mono mb-2 text-slate-200">${dmsStr}</div><div class="text-[9px] text-slate-400 mb-1 uppercase font-bold tracking-widest">Elevation</div><div class="text-xs font-bold mb-3 text-sky-400">${wp.elevation} FT</div><div class="flex flex-col gap-2 pt-2 border-t border-white/5"><button onclick="addToRouteFromMap('${wp.name}')" class="w-full bg-sky-600 hover:bg-sky-500 text-white text-[10px] font-bold py-2 px-2 rounded-lg transition-colors uppercase tracking-widest">Add To Route</button><button onclick="editWaypoint('${wp.id || wp.name}')" class="w-full bg-slate-700 hover:bg-slate-600 text-white text-[10px] font-bold py-2 px-2 rounded-lg transition-colors uppercase tracking-widest">Edit WP</button></div></div>`);
+                marker.bindPopup(`<div class="p-1 min-w-[180px] font-sans text-white text-left"><div class="text-sky-400 font-bold text-lg border-b border-white/10 pb-1 mb-2 tracking-tight uppercase">${wp.name}</div><div class="text-[9px] text-slate-400 mb-1 uppercase font-bold tracking-widest">Coords (DMS)</div><div class="text-xs font-mono mb-2 text-slate-200">${dmsStr}</div><div class="text-[9px] text-slate-400 mb-1 uppercase font-bold tracking-widest">Elevation</div><div class="text-xs font-bold mb-3 text-sky-400">${wp.elevation} FT</div><div class="flex flex-col gap-2 pt-2 border-t border-white/5"><button onclick="addToRouteFromMap('${wp.name}')" class="w-full bg-sky-600 hover:bg-sky-500 text-white text-[10px] font-bold py-2 px-2 rounded-lg transition-colors uppercase tracking-widest">Add To Route</button><button onclick="editWaypoint('${wp.id || wp.name}')" class="w-full bg-slate-700 hover:bg-slate-600 text-white text-[10px] font-bold py-2 px-2 rounded-lg transition-colors uppercase tracking-widest">Edit WP</button></div></div>`);
                 marker.bindTooltip(wp.name, { permanent: true, direction: 'bottom', className: 'wp-label-custom', offset: [0, 10] });
             });
             lucide.createIcons();
@@ -354,17 +339,19 @@
                 const res = await fetch(`https://api.open-elevation.com/api/v1/lookup?locations=${lat},${lon}`);
                 const data = await res.json();
                 const elev = Math.round(data.results[0].elevation * 3.28);
-                popup.setContent(`<div class="p-2 text-white text-[10px] uppercase font-bold"><span class="text-sky-400">Position</span><br><span class="font-mono text-slate-300">${convertToDMS(lat,'lat')} ${convertToDMS(lon,'lon')}</span><br>Elev: ${elev} FT<button onclick="addNewFromMap(${lat}, ${lon}, ${elev})" class="w-full mt-3 bg-sky-600 py-2 rounded font-bold uppercase text-[9px] tracking-widest text-white">Add To Waypoint</button></div>`);
+                popup.setContent(`<div class="p-2 text-white text-[10px] uppercase font-bold text-left"><span class="text-sky-400">Position</span><br><span class="font-mono text-slate-300">${convertToDMS(lat,'lat')} ${convertToDMS(lon,'lon')}</span><br>Elev: ${elev} FT<button onclick="addNewFromMap(${lat}, ${lon}, ${elev})" class="w-full mt-3 bg-sky-600 py-2 rounded font-bold uppercase text-[9px] tracking-widest text-white">Add To Waypoint</button></div>`);
             } catch (err) { popup.setContent("Elevation Sync Error"); }
         }
 
         window.addNewFromMap = (lat, lon, elev) => { 
             currentEditWpId = null; 
-            document.getElementById('wp-name').value = "";
             document.getElementById('wp-lat-dec').value = lat; 
             document.getElementById('wp-lon-dec').value = lon; 
             document.getElementById('wp-elevation').value = elev; 
+            document.getElementById('wp-name').value = "";
             document.getElementById('waypoint-modal-title').innerText = "Add Waypoint from Map";
+            document.getElementById('coord-mode').value = 'DECIMAL';
+            toggleCoordMode();
             document.getElementById('waypoint-modal').classList.remove('hidden'); 
         };
 
@@ -378,6 +365,7 @@
             map.closePopup();
         };
 
+        // --- Advanced Routing Visualization ---
         function showRouteOnMap(idx) {
             const r = savedRoutes[idx];
             if(!r) return;
@@ -389,7 +377,21 @@
             map.fitBounds(activeRouteLine.getBounds(), { padding: [50, 50] });
 
             let isDragging = false, tempPointMarker = null;
-            activeRouteLine.on('mousedown', (e) => { isDragging = true; map.dragging.disable(); tempPointMarker = L.circleMarker(e.latlng, { radius: 8, color: 'magenta', fillOpacity: 0.5 }).addTo(map); });
+            let insertIdx = -1;
+
+            activeRouteLine.on('mousedown', (e) => { 
+                isDragging = true; 
+                map.dragging.disable(); 
+                tempPointMarker = L.circleMarker(e.latlng, { radius: 8, color: 'magenta', fillOpacity: 0.5 }).addTo(map); 
+                
+                // Identify the closest segment for mid-route insertion
+                let minDist = Infinity;
+                for (let i = 0; i < latlngs.length - 1; i++) {
+                    const d = L.LineUtil.pointToSegmentDistance(map.latLngToLayerPoint(e.latlng), map.latLngToLayerPoint(latlngs[i]), map.latLngToLayerPoint(latlngs[i+1]));
+                    if (d < minDist) { minDist = d; insertIdx = i + 1; }
+                }
+            });
+
             map.on('mousemove', (e) => { if(isDragging && tempPointMarker) tempPointMarker.setLatLng(e.latlng); });
             map.on('mouseup', (e) => {
                 if(!isDragging) return;
@@ -399,26 +401,24 @@
                 
                 let nearest = null;
                 let minDist = 1.5; 
-                waypoints.forEach(wp => {
-                    const d = calcDistance(finalLatLng.lat, finalLatLng.lng, wp.lat, wp.lon);
-                    if(d < minDist) { minDist = d; nearest = wp; }
-                });
+                waypoints.forEach(wp => { const d = calcDistance(finalLatLng.lat, finalLatLng.lng, wp.lat, wp.lon); if(d < minDist) { minDist = d; nearest = wp; } });
 
                 if(nearest) {
-                    L.popup().setLatLng(finalLatLng).setContent(`<div class="p-1 min-w-[180px] text-white"><div class="text-emerald-400 font-bold border-b border-white/10 pb-1 mb-2 uppercase text-[10px]">Waypoint Found</div><div class="text-lg font-bold mb-1 uppercase">${nearest.name}</div><button onclick="addExistingWpToRouteByName('${nearest.name}', ${idx})" class="w-full bg-emerald-600 py-2 rounded-lg text-[9px] font-bold uppercase tracking-widest text-white">Insert Into Route</button></div>`).openOn(map);
+                    L.popup().setLatLng(finalLatLng).setContent(`<div class="p-1 min-w-[180px] text-white text-left"><div class="text-emerald-400 font-bold border-b border-white/10 pb-1 mb-2 uppercase text-[10px]">Waypoint Found</div><div class="text-lg font-bold mb-1 uppercase">${nearest.name}</div><button onclick="addExistingWpToRouteByName('${nearest.name}', ${idx}, ${insertIdx})" class="w-full bg-emerald-600 py-2 rounded-lg text-[9px] font-bold uppercase tracking-widest text-white">Insert Into Route</button></div>`).openOn(map);
                 } else {
                     const dms = `${convertToDMS(finalLatLng.lat, 'lat')} ${convertToDMS(finalLatLng.lng, 'lon')}`;
-                    L.popup().setLatLng(finalLatLng).setContent(`<div class="p-1 min-w-[180px] text-white"><div class="text-sky-400 font-bold border-b border-white/10 pb-1 mb-2 uppercase text-[10px]">New Track Point</div><div class="text-[9px] font-mono mb-2">${dms}</div><button onclick="addNewFromMap(${finalLatLng.lat}, ${finalLatLng.lng}, 0); window.pendingRouteIdx = ${idx};" class="w-full bg-sky-600 py-2 rounded-lg text-[9px] font-bold uppercase tracking-widest text-white">Create & Add</button></div>`).openOn(map);
+                    L.popup().setLatLng(finalLatLng).setContent(`<div class="p-1 min-w-[180px] text-white text-left"><div class="text-sky-400 font-bold border-b border-white/10 pb-1 mb-2 uppercase text-[10px]">New Track Point</div><div class="text-[9px] font-mono mb-2 text-slate-300">${dms}</div><button onclick="addNewFromMap(${finalLatLng.lat}, ${finalLatLng.lng}, 0); window.pendingRouteIdx = ${idx}; window.pendingInsertIdx = ${insertIdx};" class="w-full bg-sky-600 py-2 rounded-lg text-[9px] font-bold uppercase tracking-widest text-white">Create & Add</button></div>`).openOn(map);
                 }
             });
         }
 
-        window.addExistingWpToRouteByName = (name, routeIdx) => {
+        window.addExistingWpToRouteByName = (name, routeIdx, insertPos = -1) => {
             const wp = waypoints.find(w => w.name === name);
             if(!wp) return;
             const r = savedRoutes[routeIdx];
             const pts = JSON.parse(r.waypoints_json);
-            pts.push(JSON.parse(JSON.stringify(wp)));
+            if(insertPos >= 0) pts.splice(insertPos, 0, JSON.parse(JSON.stringify(wp)));
+            else pts.push(JSON.parse(JSON.stringify(wp)));
             r.waypoints_json = JSON.stringify(pts);
             savedRoutes[routeIdx] = r;
             localStorage.setItem('skyops_routes', JSON.stringify(savedRoutes));
@@ -469,27 +469,15 @@
             const body = document.getElementById('ofp-body'); if(!body) return; body.innerHTML = "";
             currentOFP.forEach((wp, i) => {
                 const tr = document.createElement('tr'); tr.className = "ofp-row bg-white/5 border-b border-white/5 text-white";
-                tr.innerHTML = `<td class="p-3"><div class="flex flex-col"><span class="font-bold text-slate-100 uppercase">${wp.name}</span><span class="text-[8px] text-slate-500 uppercase">${wp.type}</span></div></td><td class="p-3 font-mono text-sky-400">${wp.heading || '0'}°</td><td class="p-3 font-mono text-slate-300">${wp.distance || '0'} Nm</td><td class="p-3 font-mono text-slate-300">${wp.eet || '0'} M</td><td class="p-3 text-center"><div class="flex items-center justify-center gap-2"><button onclick="moveWp(${i}, -1)" class="p-1 text-slate-500 hover:text-sky-400 ${i === 0 ? 'opacity-20 pointer-events-none' : ''}"><i data-lucide="chevron-up" class="w-4 h-4"></i></button><button onclick="moveWp(${i}, 1)" class="p-1 text-slate-500 hover:text-sky-400 ${i === currentOFP.length-1 ? 'opacity-20 pointer-events-none' : ''}"><i data-lucide="chevron-down" class="w-4 h-4"></i></button><button onclick="removeWpFromRoute(${i})" class="p-1 text-red-500 hover:text-red-400 ml-2"><i data-lucide="trash-2" class="w-4 h-4"></i></button></div></td>`;
+                tr.innerHTML = `<td class="p-3 text-left"><div class="flex flex-col"><span class="font-bold text-slate-100 uppercase">${wp.name}</span><span class="text-[8px] text-slate-500 uppercase">${wp.type}</span></div></td><td class="p-3 font-mono text-sky-400">${wp.heading || '0'}°</td><td class="p-3 font-mono text-slate-300">${wp.distance || '0'} Nm</td><td class="p-3 font-mono text-slate-300">${wp.eet || '0'} M</td><td class="p-3 text-center"><div class="flex items-center justify-center gap-2"><button onclick="moveWp(${i}, -1)" class="p-1 text-slate-500 hover:text-sky-400 ${i === 0 ? 'opacity-20 pointer-events-none' : ''}"><i data-lucide="chevron-up" class="w-4 h-4"></i></button><button onclick="moveWp(${i}, 1)" class="p-1 text-slate-500 hover:text-sky-400 ${i === currentOFP.length-1 ? 'opacity-20 pointer-events-none' : ''}"><i data-lucide="chevron-down" class="w-4 h-4"></i></button><button onclick="removeWpFromRoute(${i})" class="p-1 text-red-500 hover:text-red-400 ml-2"><i data-lucide="trash-2" class="w-4 h-4"></i></button></div></td>`;
                 body.appendChild(tr);
             });
             body.innerHTML += `<tr><td colspan="5" class="p-4 text-center"><button onclick="openWpSelector()" class="bg-sky-500/10 hover:bg-sky-500/20 text-sky-400 py-2 px-8 rounded-full border border-sky-500/30 text-[9px] font-bold uppercase tracking-widest transition-all">+ Add Waypoint</button></td></tr>`;
             lucide.createIcons(); recalculateTotals();
         }
 
-        function moveWp(idx, dir) {
-            const newIdx = idx + dir;
-            if (newIdx < 0 || newIdx >= currentOFP.length) return;
-            [currentOFP[idx], currentOFP[newIdx]] = [currentOFP[newIdx], currentOFP[idx]];
-            recalculateOFP(); renderOFP();
-        }
-
+        function moveWp(idx, dir) { const newIdx = idx + dir; if (newIdx < 0 || newIdx >= currentOFP.length) return; [currentOFP[idx], currentOFP[newIdx]] = [currentOFP[newIdx], currentOFP[idx]]; recalculateOFP(); renderOFP(); }
         function invertCurrentRoute() { if (currentOFP.length < 2) return; currentOFP.reverse(); recalculateOFP(); renderOFP(); }
-
-        function duplicateRoute(index) {
-            const r = {...savedRoutes[index], name: savedRoutes[index].name + " COPY"};
-            savedRoutes.push(r); localStorage.setItem('skyops_routes', JSON.stringify(savedRoutes));
-            renderSavedRoutes(); showMsg("Route Duplicated!", "copy");
-        }
 
         function openWpSelector() { document.getElementById('wp-sel-search').value = ""; renderWpSelector(); document.getElementById('wp-selector-modal').classList.remove('hidden'); }
         function closeWpSelector() { document.getElementById('wp-selector-modal').classList.add('hidden'); }
@@ -501,13 +489,8 @@
                 const div = document.createElement('div');
                 div.className = "p-3 bg-slate-900 border border-white/5 hover:border-sky-500 rounded-xl cursor-pointer flex justify-between items-center group transition-all";
                 const wpCopy = JSON.parse(JSON.stringify(wp));
-                div.innerHTML = `<div class="flex items-center gap-3"><div class="icon-vfr"></div><span class="font-bold text-slate-200 uppercase">${wp.name}</span></div><i data-lucide="plus-circle" class="w-4 h-4 text-sky-400 opacity-0 group-hover:opacity-100 transition-all"></i>`;
-                div.onclick = () => {
-                    currentOFP.push(wpCopy);
-                    closeWpSelector();
-                    recalculateOFP();
-                    renderOFP();
-                };
+                div.innerHTML = `<div class="flex items-center gap-3 text-left"><div class="icon-vfr"></div><span class="font-bold text-slate-200 uppercase">${wp.name}</span></div><i data-lucide="plus-circle" class="w-4 h-4 text-sky-500 opacity-0 group-hover:opacity-100 transition-all"></i>`;
+                div.onclick = () => { currentOFP.push(wpCopy); closeWpSelector(); recalculateOFP(); renderOFP(); };
                 list.appendChild(div);
             });
             lucide.createIcons();
@@ -534,10 +517,14 @@
             const ob = parseFloat(document.getElementById('route-fuel-onboard').value) || 0;
             const unit = document.getElementById('route-fuel-unit-label').innerText;
             const req = Math.round((te / 60) * fb);
-            document.getElementById('sum-distance').innerText = `${td.toFixed(1)} Nm`;
-            document.getElementById('sum-eet').innerText = `${te} Min`;
-            document.getElementById('sum-fuel-req').innerText = `${req} ${unit}`;
-            document.getElementById('sum-fuel-rem').innerText = `${ob - req} ${unit}`;
+            const sumDistEl = document.getElementById('sum-distance');
+            const sumEetEl = document.getElementById('sum-eet');
+            const sumFuelReqEl = document.getElementById('sum-fuel-req');
+            const sumFuelRemEl = document.getElementById('sum-fuel-rem');
+            if(sumDistEl) sumDistEl.innerText = `${td.toFixed(1)} Nm`;
+            if(sumEetEl) sumEetEl.innerText = `${te} Min`;
+            if(sumFuelReqEl) sumFuelReqEl.innerText = `${req} ${unit}`;
+            if(sumFuelRemEl) sumFuelRemEl.innerText = `${ob - req} ${unit}`;
             window.lastOFPTotals = { td, te, req };
         }
 
@@ -554,16 +541,13 @@
         function renderSavedRoutes() {
             const list = document.getElementById('route-list'); if(!list) return; list.innerHTML = "";
             savedRoutes.forEach((r, i) => {
-                const card = document.createElement('div');
-                card.className = "glass p-5 rounded-3xl border border-white/5 hover:border-sky-500/40 transition-all cursor-pointer group relative overflow-hidden text-white";
-                card.innerHTML = `<div class="flex justify-between items-start mb-4"><div class="flex-1"><h3 class="text-lg font-bold text-sky-400 group-hover:text-white transition-colors uppercase">${r.name}</h3><p class="text-[9px] text-slate-500 uppercase tracking-widest font-bold">${r.aircraft}</p></div><i data-lucide="navigation" class="w-5 h-5 text-slate-700 group-hover:text-sky-400 transition-colors"></i></div><div class="flex justify-between text-[10px] text-slate-400 font-bold uppercase mb-4"><div class="bg-slate-900/50 px-3 py-1 rounded-full">${r.total_distance} Nm</div><div class="bg-slate-900/50 px-3 py-1 rounded-full">${r.total_eet} Min</div></div><div class="flex gap-2"><button onclick="showRouteOnMap(${i})" class="flex-1 py-2 bg-fuchsia-500/20 text-fuchsia-400 border border-fuchsia-500/30 rounded-xl text-[9px] font-bold hover:bg-fuchsia-500 hover:text-white transition-all uppercase tracking-widest">Map View</button><button onclick="openRouteModal(${i})" class="p-2 bg-sky-500/10 text-sky-400 rounded-xl hover:bg-sky-500 hover:text-white transition-all"><i data-lucide="edit-3" class="w-3 h-3"></i></button><button onclick="duplicateRoute(${i})" class="p-2 bg-amber-500/10 text-amber-500 rounded-xl hover:bg-amber-500 hover:text-white transition-all"><i data-lucide="copy" class="w-3 h-3"></i></button><button onclick="deleteRoute(${i})" class="p-2 bg-red-500/10 text-red-500 rounded-xl hover:bg-red-500 hover:text-white transition-all"><i data-lucide="trash-2" class="w-3 h-3"></i></button></div>`;
+                const card = document.createElement('div'); card.className = "glass p-5 rounded-3xl border border-white/5 hover:border-sky-500/40 transition-all cursor-pointer group relative overflow-hidden text-white text-left";
+                card.innerHTML = `<div class="flex justify-between items-start mb-4"><div class="flex-1"><h3 class="text-lg font-bold text-sky-400 group-hover:text-white transition-colors uppercase">${r.name}</h3><p class="text-[9px] text-slate-500 uppercase tracking-widest font-bold">${r.aircraft}</p></div><i data-lucide="navigation" class="w-5 h-5 text-slate-700 group-hover:text-sky-400 transition-colors"></i></div><div class="flex justify-between text-[10px] text-slate-400 font-bold uppercase mb-4"><div class="bg-slate-900/50 px-3 py-1 rounded-full">${r.total_distance} Nm</div><div class="bg-slate-900/50 px-3 py-1 rounded-full">${r.total_eet} Min</div></div><div class="flex gap-2"><button onclick="showRouteOnMap(${i})" class="flex-1 py-2 bg-fuchsia-500/20 text-fuchsia-400 border border-fuchsia-500/30 rounded-xl text-[9px] font-bold hover:bg-fuchsia-500 hover:text-white transition-all uppercase tracking-widest">Map View</button><button onclick="openRouteModal(${i})" class="p-2 bg-sky-500/10 text-sky-400 rounded-xl hover:bg-sky-500 hover:text-white transition-all"><i data-lucide="edit-3" class="w-3 h-3"></i></button><button onclick="duplicateRoute(${i})" class="p-2 bg-amber-500/10 text-amber-500 rounded-xl hover:bg-amber-500 hover:text-white transition-all"><i data-lucide="copy" class="w-3 h-3"></i></button><button onclick="window.deleteRoute(${i})" class="p-2 bg-red-500/10 text-red-500 rounded-xl hover:bg-red-500 hover:text-white transition-all"><i data-lucide="trash-2" class="w-3 h-3"></i></button></div>`;
                 card.onclick = (e) => { if(e.target.closest('button')) return; openRouteModal(i); };
                 list.appendChild(card);
             });
             lucide.createIcons();
         }
-
-        function deleteRoute(i) { if(confirm("Delete this route?")) { savedRoutes.splice(i,1); localStorage.setItem('skyops_routes', JSON.stringify(savedRoutes)); renderSavedRoutes(); if(activeRouteLine) map.removeLayer(activeRouteLine); } }
 
         // --- Database Logic ---
         function renderWaypoints() {
@@ -571,8 +555,8 @@
             if (!list) return; list.innerHTML = "";
             waypoints.filter(w => w.name.toLowerCase().startsWith(q)).forEach(wp => {
                 const tr = document.createElement('tr'); tr.className = "hover:bg-white/5 cursor-pointer transition-colors";
-                tr.innerHTML = `<td class="p-4 text-center">${wp.type === 'VFR' ? '<div class="icon-vfr mx-auto"></div>' : (wp.type === 'AIRPORT' ? '<div class="icon-airport mx-auto"><i data-lucide="plane" class="w-3 h-3"></i></div>' : '<div class="icon-heliport text-pink-300 font-bold">H</div>')}</td><td class="p-4 font-bold text-sky-400 uppercase">${wp.name}</td><td class="p-4 font-mono text-[10px] text-slate-500">${convertToDMS(wp.lat,'lat')}</td><td class="p-4 text-slate-300 font-bold uppercase">${wp.elevation} FT</td><td class="p-4 text-center"><button onclick="deleteWaypoint(${wp.id})" class="text-red-500/60 hover:text-red-400 transition-colors"><i data-lucide="trash-2" class="w-4 h-4 mx-auto"></i></button></td>`;
-                tr.onclick = (e) => { if(e.target.closest('button')) return; editWaypoint(wp.id || wp.name); };
+                tr.innerHTML = `<td class="p-4 text-center">${wp.type === 'VFR' ? '<div class="icon-vfr mx-auto"></div>' : (wp.type === 'AIRPORT' ? '<div class="icon-airport mx-auto"><i data-lucide="plane" class="w-3 h-3"></i></div>' : '<div class="icon-heliport text-pink-300 font-bold mx-auto">H</div>')}</td><td class="p-4 font-bold text-sky-400 uppercase">${wp.name}</td><td class="p-4 font-mono text-[10px] text-slate-500">${convertToDMS(wp.lat,'lat')}</td><td class="p-4 text-slate-300 font-bold uppercase">${wp.elevation} FT</td><td class="p-4 text-center"><button onclick="deleteWaypoint('${wp.id || wp.name}')" class="text-red-500/60 hover:text-red-400 transition-colors"><i data-lucide="trash-2" class="w-4 h-4 mx-auto"></i></button></td>`;
+                tr.onclick = (e) => { if(e.target.tagName !== 'BUTTON' && !e.target.closest('button')) editWaypoint(wp.id || wp.name); };
                 list.appendChild(tr);
             });
             lucide.createIcons();
@@ -581,9 +565,9 @@
         function renderAircraftProfiles() {
             const list = document.getElementById('aircraft-list'); if(!list) return; list.innerHTML = "";
             aircraftProfiles.forEach(ac => {
-                const div = document.createElement('div'); div.className = "glass p-5 rounded-3xl border border-white/5 hover:border-sky-500/30 transition-all cursor-pointer group";
-                div.innerHTML = `<div class="flex justify-between mb-4"><div class="flex-1"><h3 class="text-xl font-bold text-slate-100 uppercase">${ac.registration}</h3><p class="text-[9px] text-slate-500 uppercase tracking-widest font-bold">${ac.aircraft_type}</p></div><i data-lucide="plane" class="text-slate-700"></i></div><div class="flex justify-between items-center text-[10px] font-bold"><span class="bg-slate-800 px-3 py-1 rounded-full text-sky-400 uppercase">${ac.speed} KTS</span><button onclick="deleteAircraft('${ac.registration}')" class="text-red-500/60 hover:text-red-400">DELETE</button></div>`;
-                div.onclick = (e) => { if(e.target.closest('button')) return; editAircraft(ac.registration); };
+                const div = document.createElement('div'); div.className = "glass p-5 rounded-3xl border border-white/5 hover:border-sky-500/30 transition-all cursor-pointer group text-left";
+                div.innerHTML = `<div class="flex justify-between mb-4"><div class="flex-1 text-left"><h3 class="text-xl font-bold text-slate-100 uppercase">${ac.registration}</h3><p class="text-[9px] text-slate-500 uppercase tracking-widest font-bold">${ac.aircraft_type}</p></div><i data-lucide="plane" class="text-slate-700"></i></div><div class="flex justify-between items-center text-[10px] font-bold"><span class="bg-slate-800 px-3 py-1 rounded-full text-sky-400 uppercase">${ac.speed} KTS</span><button onclick="window.deleteAircraft('${ac.registration}')" class="text-red-500/60 hover:text-red-400">DELETE</button></div>`;
+                div.onclick = (e) => { if(e.target.tagName !== 'BUTTON' && !e.target.closest('button')) editAircraft(ac.registration); };
                 list.appendChild(div);
             });
             lucide.createIcons();
@@ -594,8 +578,7 @@
             const latDec = parseFloat(document.getElementById('wp-lat-dec').value);
             const lonDec = parseFloat(document.getElementById('wp-lon-dec').value);
             if (mode === 'DMS' && !isNaN(latDec) && !isNaN(lonDec)) {
-                const lp = decimalToDMSParts(latDec, 'lat');
-                const op = decimalToDMSParts(lonDec, 'lon');
+                const lp = decimalToDMSParts(latDec, 'lat'); const op = decimalToDMSParts(lonDec, 'lon');
                 document.getElementById('lat-d').value = lp.d; document.getElementById('lat-m').value = lp.m; document.getElementById('lat-s').value = lp.s; document.getElementById('lat-dir').value = lp.dir;
                 document.getElementById('lon-d').value = op.d; document.getElementById('lon-m').value = op.m; document.getElementById('lon-s').value = op.s; document.getElementById('lon-dir').value = op.dir;
             }
@@ -609,21 +592,22 @@
             if(m==='DECIMAL') { lat = parseFloat(document.getElementById('wp-lat-dec').value); lon = parseFloat(document.getElementById('wp-lon-dec').value); }
             else { lat = dmsToDecimal(document.getElementById('lat-d').value, document.getElementById('lat-m').value, document.getElementById('lat-s').value, document.getElementById('lat-dir').value); lon = dmsToDecimal(document.getElementById('lon-d').value, document.getElementById('lon-m').value, document.getElementById('lon-s').value, document.getElementById('lon-dir').value); }
             if(!n || isNaN(lat)) return showMsg("Invalid Data", "alert-circle");
-            
             const wp = { id: currentEditWpId || Date.now(), name: n, type: t, lat, lon, elevation: parseInt(e) || 0 };
             if(currentEditWpId) waypoints = waypoints.map(w => (w.id == currentEditWpId || w.name === currentEditWpId) ? wp : w); else waypoints.push(wp);
-            
             localStorage.setItem('skyops_waypoints', JSON.stringify(waypoints)); renderWaypoints(); updateMapWaypoints();
             if(sheetUrl) fetch(sheetUrl, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ type: "waypoint", ...wp, dms: convertToDMS(lat,'lat') }) });
+            
+            // penyisipan cerdas untuk rute
             if(window.pendingRouteIdx !== undefined) { 
                 const rIdx = window.pendingRouteIdx;
                 const r = savedRoutes[rIdx];
                 const pts = JSON.parse(r.waypoints_json);
-                pts.push(JSON.parse(JSON.stringify(wp)));
+                const pos = window.pendingInsertIdx !== undefined ? window.pendingInsertIdx : pts.length;
+                pts.splice(pos, 0, JSON.parse(JSON.stringify(wp)));
                 r.waypoints_json = JSON.stringify(pts);
                 savedRoutes[rIdx] = r;
                 localStorage.setItem('skyops_routes', JSON.stringify(savedRoutes));
-                delete window.pendingRouteIdx; 
+                delete window.pendingRouteIdx; delete window.pendingInsertIdx;
                 showRouteOnMap(rIdx);
             }
             closeWaypointModal();
@@ -632,14 +616,13 @@
         async function saveAircraftProfile() {
             const reg = document.getElementById('ac-reg').value.toUpperCase(); if(!reg) return;
             const ac = { registration: reg, aircraft_type: document.getElementById('ac-type').value, model: document.getElementById('ac-model').value, speed: document.getElementById('ac-speed').value, fuel: document.getElementById('ac-fuel').value, fuel_unit: document.getElementById('ac-fuel-unit').value };
-            const idx = aircraftProfiles.findIndex(a => a.registration === reg);
-            if(idx > -1) aircraftProfiles[idx] = ac; else aircraftProfiles.push(ac);
+            const idx = aircraftProfiles.findIndex(a => a.registration === reg); if(idx > -1) aircraftProfiles[idx] = ac; else aircraftProfiles.push(ac);
             localStorage.setItem('skyops_aircraft', JSON.stringify(aircraftProfiles)); renderAircraftProfiles();
             if(sheetUrl) fetch(sheetUrl, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ type: "aircraft", ...ac }) });
             closeAircraftModal();
         }
 
-        // --- UI Control ---
+        // --- UI & Controls ---
         function switchTab(t) {
             document.querySelectorAll('.content-section').forEach(s => s.classList.add('hidden'));
             const content = document.getElementById(`content-${t}`);
@@ -658,35 +641,16 @@
 
         function renderAdminUsers() { const b = document.getElementById('admin-user-list'); if(!b) return; b.innerHTML = ""; users.forEach(u => { b.innerHTML += `<tr class="border-b border-white/5 hover:bg-white/5 text-slate-400"><td class="p-4 text-white"><b>${u.name}</b></td><td class="p-4 font-mono text-slate-500">${u.username}</td><td class="p-4 text-center text-[10px] text-amber-500 font-bold uppercase tracking-widest">Admin Access</td></tr>`; }); }
         
-        function editWaypoint(id) { 
-            const wp = waypoints.find(w => (w.id == id || w.name === id)); 
-            if(!wp) return;
-            currentEditWpId = id; 
-            document.getElementById('waypoint-modal-title').innerText = "Edit Waypoint"; 
-            document.getElementById('wp-name').value = wp.name; 
-            document.getElementById('wp-type').value = wp.type; 
-            document.getElementById('wp-lat-dec').value = wp.lat; 
-            document.getElementById('wp-lon-dec').value = wp.lon; 
-            document.getElementById('wp-elevation').value = wp.elevation; 
-            document.getElementById('coord-mode').value = 'DECIMAL'; 
-            toggleCoordMode(); 
-            document.getElementById('waypoint-modal').classList.remove('hidden'); 
-        }
-        function deleteWaypoint(id) { if(confirm("Delete waypoint?")) { waypoints = waypoints.filter(w => (w.id != id && w.name !== id)); localStorage.setItem('skyops_waypoints', JSON.stringify(waypoints)); renderWaypoints(); updateMapWaypoints(); } }
-        function editAircraft(reg) { const ac=aircraftProfiles.find(a=>a.registration===reg); if(!ac) return; currentEditAcReg=reg; document.getElementById('ac-reg').value=ac.registration; document.getElementById('ac-reg').disabled=true; document.getElementById('ac-speed').value=ac.speed; document.getElementById('ac-type').value=ac.aircraft_type; document.getElementById('ac-fuel').value=ac.fuel; document.getElementById('ac-fuel-unit').value=ac.fuel_unit; document.getElementById('aircraft-modal').classList.remove('hidden'); }
+        function editWaypoint(id) { const wp = waypoints.find(w => (w.id == id || w.name === id)); if(!wp) return; currentEditWpId = id; document.getElementById('waypoint-modal-title').innerText = "Edit Waypoint"; document.getElementById('wp-name').value = wp.name; document.getElementById('wp-type').value = wp.type; document.getElementById('wp-lat-dec').value = wp.lat; document.getElementById('wp-lon-dec').value = wp.lon; document.getElementById('wp-elevation').value = wp.elevation; document.getElementById('coord-mode').value = 'DECIMAL'; toggleCoordMode(); document.getElementById('waypoint-modal').classList.remove('hidden'); }
         function saveSheetUrl() { const u = document.getElementById('sheet-url').value; if(u) { localStorage.setItem('skyops_sheet_url', u); sheetUrl = u; updateDbStatus(true); syncAllData(true); } }
         function updateDbStatus(c) { const el = document.getElementById('db-status'); if(el) el.innerText = c ? "CLOUD CONNECTED" : "OFFLINE"; }
-        
         function showMsg(t, i) { 
-            const txt = document.getElementById('msg-text'); 
-            const icon = document.getElementById('msg-icon'); 
-            const box = document.getElementById('msg-box');
+            const txt = document.getElementById('msg-text'); const icon = document.getElementById('msg-icon'); const box = document.getElementById('msg-box');
             if(txt) txt.innerText = t; 
             if(icon) icon.innerHTML = `<i data-lucide="${i}" class="w-12 h-12 mx-auto text-sky-400"></i>`; 
             lucide.createIcons(); 
             if(box) box.classList.remove('hidden'); 
         }
-        
         function closeMsg() { const box = document.getElementById('msg-box'); if(box) box.classList.add('hidden'); }
         function closeWaypointModal() { document.getElementById('waypoint-modal').classList.add('hidden'); }
         function closeAircraftModal() { document.getElementById('aircraft-modal').classList.add('hidden'); }
@@ -695,16 +659,14 @@
         
         function openWaypointModal() { 
             currentEditWpId = null; 
-            document.getElementById('waypoint-modal-title').innerText = "Add Waypoint";
-            document.getElementById('wp-name').value = "";
-            document.getElementById('wp-lat-dec').value = "";
-            document.getElementById('wp-lon-dec').value = "";
-            document.getElementById('wp-elevation').value = "";
-            document.getElementById('waypoint-modal').classList.remove('hidden'); 
+            document.getElementById('wp-name').value = ""; document.getElementById('wp-lat-dec').value = ""; document.getElementById('wp-lon-dec').value = ""; document.getElementById('wp-elevation').value = "";
+            document.getElementById('lat-d').value = ""; document.getElementById('lat-m').value = ""; document.getElementById('lat-s').value = "";
+            document.getElementById('lon-d').value = ""; document.getElementById('lon-m').value = ""; document.getElementById('lon-s').value = "";
+            document.getElementById('waypoint-modal-title').innerText = "Add Waypoint"; document.getElementById('waypoint-modal').classList.remove('hidden'); 
         }
         
-        function openBulkModal() { document.getElementById('bulk-modal').classList.remove('hidden'); }
-        function closeBulkModal() { document.getElementById('bulk-modal').classList.add('hidden'); }
+        function openBulkModal() { const el = document.getElementById('bulk-modal'); if(el) el.classList.remove('hidden'); }
+        function closeBulkModal() { const el = document.getElementById('bulk-modal'); if(el) el.classList.add('hidden'); }
         function logout() { location.reload(); }
         function locateUser() { if (navigator.geolocation) { navigator.geolocation.getCurrentPosition(p => { const lat = p.coords.latitude, lon = p.coords.longitude; map.setView([lat, lon], 12); if (userMarker) map.removeLayer(userMarker); userMarker = L.marker([lat, lon], { icon: L.divIcon({ className: 'custom-div-icon', html: `<div class="gps-marker"></div>`, iconSize: [20, 20], iconAnchor: [10, 10] }) }).addTo(map); }, () => showMsg("GPS Error","alert-triangle")); } }
 
@@ -712,46 +674,14 @@
             const input = document.getElementById('bulk-input').value.trim(); if (!input) return;
             const lines = input.split('\n'); let batch = [];
             const regex = /^(\S+)\s+([NS]\d+)\s+(\d+)'(\d+)"\s+([EW]\d+)\s+(\d+)'(\d+)"\s+(\S+)$/i;
-            for (let line of lines) { 
-                const match = line.trim().match(regex);
-                if (match) {
-                    const [_, name, lat_d, lat_m, lat_s, lon_d, lon_m, lon_s, type] = match;
-                    const lat_dec = dmsToDecimal(lat_d.substring(1), lat_m, lat_s, lat_d.charAt(0));
-                    const lon_dec = dmsToDecimal(lon_d.substring(1), lon_m, lon_s, lon_d.charAt(0));
-                    batch.push({ id: Date.now() + Math.random(), name: name.toUpperCase(), lat: lat_dec, lon: lon_dec, type: type.toUpperCase(), elevation: 0 }); 
-                }
-            }
-            if(batch.length > 0) { waypoints.push(...batch); localStorage.setItem('skyops_waypoints', JSON.stringify(waypoints)); renderWaypoints(); updateMapWaypoints(); showMsg(`${batch.length} Waypoints Loaded`, "check-circle"); }
-            else { showMsg("Format Error. Check Input.", "alert-circle"); }
+            for (let line of lines) { const match = line.trim().match(regex); if (match) { const [_, name, lat_d, lat_m, lat_s, lon_d, lon_m, lon_s, type] = match; const lat_dec = dmsToDecimal(lat_d.substring(1), lat_m, lat_s, lat_d.charAt(0)); const lon_dec = dmsToDecimal(lon_d.substring(1), lon_m, lon_s, lon_d.charAt(0)); batch.push({ id: Date.now() + Math.random(), name: name.toUpperCase(), lat: lat_dec, lon: lon_dec, type: type.toUpperCase(), elevation: 0 }); } }
+            if(batch.length > 0) { waypoints.push(...batch); localStorage.setItem('skyops_waypoints', JSON.stringify(waypoints)); renderWaypoints(); updateMapWaypoints(); showMsg(`${batch.length} Waypoints Loaded`, "check-circle"); } else { showMsg("Format Error", "alert-circle"); }
             closeBulkModal();
         }
 
-        async function syncAllData(manual = false) { 
-            if(!sheetUrl) return; 
-            if(manual) showMsg("Synchronizing Cloud...", "refresh-cw"); 
-            try { 
-                const res = await fetch(sheetUrl); 
-                const data = await res.json(); 
-                if(data.waypoints) { 
-                    waypoints = data.waypoints.map((w, idx) => ({...w, id: w.id || w.name || (Date.now() + idx)})); 
-                    localStorage.setItem('skyops_waypoints', JSON.stringify(waypoints)); 
-                    renderWaypoints(); updateMapWaypoints(); 
-                } 
-                if(data.aircraft) { aircraftProfiles = data.aircraft; localStorage.setItem('skyops_aircraft', JSON.stringify(aircraftProfiles)); renderAircraftProfiles(); } 
-                if(data.routes) { savedRoutes = data.routes; localStorage.setItem('skyops_routes', JSON.stringify(savedRoutes)); renderSavedRoutes(); } 
-                if(data.users) { users = [users[0], ...data.users.filter(u=>u.username!=='admin')]; renderAdminUsers(); } 
-                if(manual) showMsg("Database Synchronized", "check-circle"); 
-            } catch(e) { if(manual) showMsg("Sync Failed", "x-circle"); } 
-        }
+        async function syncAllData(manual = false) { if(!sheetUrl) return; if(manual) showMsg("Synchronizing Cloud...", "refresh-cw"); try { const res = await fetch(sheetUrl); const data = await res.json(); if(data.waypoints) { waypoints = data.waypoints.map((w, idx) => ({...w, id: w.id || w.name || (Date.now() + idx)})); localStorage.setItem('skyops_waypoints', JSON.stringify(waypoints)); renderWaypoints(); updateMapWaypoints(); } if(data.aircraft) { aircraftProfiles = data.aircraft; localStorage.setItem('skyops_aircraft', JSON.stringify(aircraftProfiles)); renderAircraftProfiles(); } if(data.routes) { savedRoutes = data.routes; localStorage.setItem('skyops_routes', JSON.stringify(savedRoutes)); renderSavedRoutes(); } if(data.users) { users = [users[0], ...data.users.filter(u=>u.username!=='admin')]; renderAdminUsers(); } if(manual) showMsg("Database Synchronized", "check-circle"); } catch(e) { if(manual) showMsg("Sync Failed", "x-circle"); } }
 
-        async function syncElevation() { 
-            const lat = document.getElementById('wp-lat-dec').value;
-            const lon = document.getElementById('wp-lon-dec').value;
-            if(!lat || !lon) return;
-            const res = await fetch(`https://api.open-elevation.com/api/v1/lookup?locations=${lat},${lon}`);
-            const data = await res.json();
-            document.getElementById('wp-elevation').value = Math.round(data.results[0].elevation * 3.28);
-        }
+        async function syncElevation() { const lat = document.getElementById('wp-lat-dec').value; const lon = document.getElementById('wp-lon-dec').value; if(!lat || !lon) return; const res = await fetch(`https://api.open-elevation.com/api/v1/lookup?locations=${lat},${lon}`); const data = await res.json(); document.getElementById('wp-elevation').value = Math.round(data.results[0].elevation * 3.28); }
     </script>
 </body>
 </html>
