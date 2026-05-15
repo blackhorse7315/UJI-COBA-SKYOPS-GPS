@@ -13,7 +13,7 @@
     <link id="manifest-link" rel="manifest" href="">
 
     <!-- ========================================== -->
-    <!--         GLOBAL CSS & LIBRARIES             -->
+    <!--          GLOBAL CSS & LIBRARIES             -->
     <!-- ========================================== -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
@@ -137,7 +137,7 @@
 <body class="antialiased selection:bg-blue-500 selection:text-white relative h-[100dvh] w-screen overflow-hidden">
 
     <!-- ========================================== -->
-    <!--         BAGIAN 1: SPLASH SCREEN            -->
+    <!--          BAGIAN 1: SPLASH SCREEN            -->
     <!-- ========================================== -->
     <div id="splashScreen" class="print:hidden fixed inset-0 z-[99999] flex flex-col items-center justify-center bg-[#0f172a] transition-opacity duration-1000">
         <div class="w-40 h-40 md:w-48 md:h-48 mb-8 fade-in">
@@ -152,7 +152,7 @@
     </div>
 
     <!-- ========================================== -->
-    <!--         BAGIAN 2: LOGIN SCREEN             -->
+    <!--          BAGIAN 2: LOGIN SCREEN             -->
     <!-- ========================================== -->
     <div id="loginScreen" class="print:hidden hidden h-full w-full flex items-center justify-center p-4 overflow-y-auto">
         <div class="glass-panel p-6 md:p-8 rounded-3xl w-full max-w-md relative overflow-hidden my-auto">
@@ -189,7 +189,7 @@
     </div>
 
     <!-- ========================================== -->
-    <!--         BAGIAN 3: ADMIN DASHBOARD          -->
+    <!--          BAGIAN 3: ADMIN DASHBOARD          -->
     <!-- ========================================== -->
     <div id="adminScreen" class="print:hidden hidden h-full w-full flex flex-col overflow-hidden">
         <header class="glass-panel sticky top-0 z-40 border-b border-slate-700/50 px-3 sm:px-4 md:px-6 py-3 sm:py-4 flex justify-between items-center shrink-0 w-full" style="padding-top: max(env(safe-area-inset-top, 12px), 12px);">
@@ -294,7 +294,7 @@
 
 
     <!-- ========================================== -->
-    <!--         BAGIAN 4: MAIN APP CONTAINER       -->
+    <!--          BAGIAN 4: MAIN APP CONTAINER       -->
     <!-- ========================================== -->
     <div id="mainScreen" class="print:hidden hidden h-full w-full flex flex-col bg-[#0b1121] overflow-hidden">
         <header class="glass-panel px-3 sm:px-4 md:px-6 py-3 sm:py-4 flex justify-between items-center shadow-md z-30 relative shrink-0 w-full" style="padding-top: max(env(safe-area-inset-top, 12px), 12px);">
@@ -352,7 +352,7 @@
         <main class="flex-1 relative bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] bg-opacity-5 z-50 w-full">
             
             <!-- ========================================== -->
-            <!--         BAGIAN 5: TAB - MAP                -->
+            <!--          BAGIAN 5: TAB - MAP                -->
             <!-- ========================================== -->
             <div id="tab-map" class="tab-content absolute inset-0 fade-in h-full w-full">
                 <div id="mapTransformWrapper" class="absolute inset-0 z-0 bg-[#0f172a] overflow-hidden">
@@ -477,7 +477,7 @@
             </div>
 
             <!-- ========================================== -->
-            <!--         BAGIAN 6: TAB - ROUTE              -->
+            <!--          BAGIAN 6: TAB - ROUTE              -->
             <!-- ========================================== -->
             <div id="tab-route" class="tab-content absolute inset-0 p-3 sm:p-6 hidden h-full overflow-hidden">
                 <div class="w-full h-full glass-panel rounded-2xl sm:rounded-3xl p-4 sm:p-6 flex flex-col relative overflow-hidden">
@@ -708,7 +708,7 @@
             </div>
 
             <!-- ========================================== -->
-            <!--         BAGIAN 7: TAB - WAYPOINT DB        -->
+            <!--          BAGIAN 7: TAB - WAYPOINT DB        -->
             <!-- ========================================== -->
             <div id="tab-waypoint" class="tab-content absolute inset-0 p-3 sm:p-6 hidden h-full overflow-hidden">
                 <div class="w-full h-full glass-panel rounded-2xl sm:rounded-3xl p-4 sm:p-6 flex flex-col relative overflow-hidden">
@@ -969,7 +969,7 @@
             </div>
 
             <!-- ========================================== -->
-            <!--         BAGIAN 8: TAB - AIRCRAFT PROFILE   -->
+            <!--          BAGIAN 8: TAB - AIRCRAFT PROFILE   -->
             <!-- ========================================== -->
             <div id="tab-aircraft" class="tab-content absolute inset-0 p-3 sm:p-6 hidden h-full overflow-hidden">
                 <div class="w-full h-full glass-panel rounded-2xl sm:rounded-3xl p-4 sm:p-6 flex flex-col relative overflow-hidden">
@@ -1088,7 +1088,7 @@
             </div>
 
             <!-- ========================================== -->
-            <!--         BAGIAN 9: TAB - DOCUMENT           -->
+            <!--          BAGIAN 9: TAB - DOCUMENT           -->
             <!-- ========================================== -->
     <!-- BAGIAN X: DOCUMENT PREVIEW MODAL -->
     <div id="docPreviewModal" class="print:hidden fixed inset-0 z-[10020] hidden flex items-center justify-center bg-black/90 backdrop-blur-md p-2 sm:p-4 fade-in">
@@ -1115,13 +1115,13 @@
     <!-- AREA CETAK OFP (Hanya Tampil Saat Dicetak / Ctrl+P) -->
     <div id="printArea" class="hidden print:block bg-white text-black p-8 min-h-screen absolute inset-0 z-[99999]"></div>
 
-    <!--   <!-- ========================================== -->
-    <!--         BAGIAN 10: JAVASCRIPT LOGIC        -->
+    <!--  <!-- ========================================== -->
+    <!--          BAGIAN 10: JAVASCRIPT LOGIC        -->
     <!-- ========================================== -->
     <script>
         // --- KONFIGURASI GOOGLE SHEETS & DRIVE ---
         // GANTI URL DI BAWAH DENGAN URL WEB APP ANDA DARI GOOGLE SCRIPT
-        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwKyUB-7i7kTpO6QmTmKkYHVBoPx-_81A9wOQ5BeN_s3Gjm1mo96n9QZ0S8honFhPRW/exec'; 
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwRP2zueAFjNpTjOu8fuSQWYnKz5OkfkZBwMObavmok_XivomGnLMy89_LuQnAoz3Xf/exec'; 
         const DRIVE_FOLDER_ID = '1d7t38ESJqaXGmQU3-hmqdGGnlgeh1ZmW'; // Folder ID tujuan untuk Dokumen Airport
         
         // --- GLOBAL STATE ---
@@ -1184,22 +1184,26 @@
         async function postToSheet(sheetName, data) {
             if (!GOOGLE_SCRIPT_URL) return;
             try {
-                // Perbaikan: Kirim objek lengkap agar Backend bisa membaca sheetName dan folderId
+                // Tambahkan folderId dan instruksi upload file ke payload
                 const payload = {
                     sheet: sheetName,
-                    folderId: DRIVE_FOLDER_ID,
-                    data: data
+                    folderId: DRIVE_FOLDER_ID, // ID Folder yang sudah didefinisikan di awal
+                    data: data,
+                    action: "saveWaypointWithFiles" // Instruksi khusus untuk backend
                 };
 
-                await fetch(GOOGLE_SCRIPT_URL, { 
+                const response = await fetch(GOOGLE_SCRIPT_URL, { 
                     method: 'POST', 
-                    headers: {
-                        'Content-Type': 'text/plain;charset=utf-8'
-                    },
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                     redirect: 'follow',
                     body: JSON.stringify(payload) 
                 });
-                console.log(`Successfully synced ${sheetName}`);
+                
+                const result = await response.json();
+                if (result.status === "success") {
+                    console.log(`Successfully synced ${sheetName}`);
+                    return result;
+                }
             } catch (err) { 
                 console.error(`Error Posting ${sheetName}:`, err); 
             }
@@ -2019,17 +2023,17 @@
         }
 
         async function saveWaypoint(e) {
-            if (e) e.preventDefault(); // KRUSIAL: Mencegah halaman reload otomatis
+            if (e) e.preventDefault();
             
             const btn = e ? e.target.querySelector('button[type="submit"]') : null;
-            const oldHtml = btn ? btn.innerHTML : 'Save Data';
-            if (btn) { btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Uploading...'; btn.disabled = true; }
+            if (btn) { 
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Uploading to Cloud Drive...'; 
+                btn.disabled = true; 
+            }
 
             const id = document.getElementById('wpId').value;
             const wpType = document.getElementById('wpType').value;
-
-            // Ambil data dokumen (Base64) sebelum menyusun objek
-            const docs = getWpDocData();
+            const docs = getWpDocData(); // Ini mengambil Base64 yang akan diproses backend menjadi URL
             
             let airportData = null;
             let heliportData = null;
@@ -2044,14 +2048,14 @@
                     ils: getDynFieldData('wpIlsList', 'ils'),
                     adfs: getDynFieldData('wpAdfList', 'adf'),
                     rnavs: getDynFieldData('wpRnavList', 'rnav'),
-                    documents: docs // Masuk ke dalam sub-objek Airport
+                    documents: docs
                 };
             } else if (wpType === 'heliport') {
                 heliportData = {
                     name: document.getElementById('wpHeliportName').value,
                     freq: document.getElementById('wpHeliportFreq').value,
                     surface: document.getElementById('wpHeliportSurface').value,
-                    documents: docs // Masuk ke dalam sub-objek Heliport
+                    documents: docs
                 };
             }
 
@@ -2062,68 +2066,64 @@
                 lat: parseFloat(document.getElementById('wpLatDec').value),
                 lon: parseFloat(document.getElementById('wpLonDec').value),
                 elev: parseInt(document.getElementById('wpElev').value || 0),
-                airportData: airportData,
-                heliportData: heliportData
+                airportData,
+                heliportData
             };
 
-            // Logika Update vs Insert
-            if (id) {
-                const idx = waypointsData.findIndex(w => w.id === id);
-                if (idx !== -1) waypointsData[idx] = newWp;
-            } else {
-                waypointsData.push(newWp);
-            }
-
             try {
-                // Kirim ke Google Sheets & Drive
-                await postToSheet('waypoints', waypointsData);
+                // Update local storage dulu
+                if (id) {
+                    const idx = waypointsData.findIndex(w => w.id === id);
+                    if (idx !== -1) waypointsData[idx] = newWp;
+                } else {
+                    waypointsData.push(newWp);
+                }
+
+                // Kirim ke Backend GAS
+                const response = await postToSheet('waypoints', waypointsData);
                 
-                if (btn) { btn.innerHTML = oldHtml; btn.disabled = false; }
+                // Jika backend berhasil mengubah Base64 menjadi URL, tarik ulang data terbaru
+                if (response && response.status === "success") {
+                    await loadWaypoints(); 
+                }
+
                 closeWaypointModal();
                 renderWaypoints();
                 if (map) updateMapWaypoints();
             } catch (err) {
-                console.error("Save failed:", err);
-                if (btn) { btn.innerHTML = 'Error! Try Again'; btn.disabled = false; }
+                alert("Gagal menyimpan data. Pastikan koneksi stabil.");
+            } finally {
+                if (btn) { btn.innerHTML = 'Save Data'; btn.disabled = false; }
             }
         }
 
         function editWaypoint(id) {
-            const wp = waypointsData.find(w => w.id === id); 
-            if(!wp) return; 
-            
-            closeWaypointDetail(); 
+            const wp = waypointsData.find(w => w.id === id); if(!wp) return; 
+            closeWaypointDetail(); // Perbaikan: Tutup Detail Card agar Form Edit terlihat
             openWaypointModal(); 
-            
-            // Set data dasar
             document.getElementById('wpId').value = wp.id; 
             document.getElementById('wpName').value = wp.name; 
             document.getElementById('wpType').value = wp.type; 
             document.getElementById('wpElev').value = wp.elev; 
             document.getElementById('wpLatDec').value = wp.lat; 
             document.getElementById('wpLonDec').value = wp.lon; 
-            
             toggleSpecificFields(); 
             
-            // Proses data tambahan berdasarkan tipe
-            if(wp.type === 'airport' && wp.airportData) { 
+            if(wp.airportData) { 
                 document.getElementById('wpAirportName').value = wp.airportData.name || ''; 
                 document.getElementById('wpAtis').value = wp.airportData.atis || ''; 
                 document.getElementById('wpRunway').value = wp.airportData.runway || ''; 
-                
-                // Panggil fungsi populate yang baru ditambahkan
-                populateDynField('wpComList', 'Name (e.g TWR)', 'Freq (e.g 118.1)', 'com', wp.airportData.comms); 
-                populateDynField('wpVorList', 'Name', 'Freq', 'vor', wp.airportData.vors); 
-                populateDynField('wpIlsList', 'Name', 'Freq', 'ils', wp.airportData.ils); 
-                populateDynField('wpAdfList', 'Name', 'Freq', 'adf', wp.airportData.adfs); 
-                populateDynField('wpRnavList', 'Name', 'Freq', 'rnav', wp.airportData.rnavs); 
-                
+                populateDynField('wpComList','COM','Freq','com', wp.airportData.comms); 
+                populateDynField('wpVorList','VOR','Freq','vor', wp.airportData.vors); 
+                populateDynField('wpIlsList','ILS','Freq','ils', wp.airportData.ils); 
+                populateDynField('wpAdfList','ADF','Freq','adf', wp.airportData.adfs); 
+                populateDynField('wpRnavList','RNAV','Freq','rnav', wp.airportData.rnavs); 
                 populateWpDocData(wp.airportData.documents); 
-            } else if(wp.type === 'heliport' && wp.heliportData) { 
+            } 
+            if(wp.heliportData) { 
                 document.getElementById('wpHeliportName').value = wp.heliportData.name || ''; 
                 document.getElementById('wpHeliportFreq').value = wp.heliportData.freq || ''; 
                 document.getElementById('wpHeliportSurface').value = wp.heliportData.surface || ''; 
-                
                 populateWpDocData(wp.heliportData.documents); 
             } 
         }
@@ -2217,14 +2217,12 @@
             c.appendChild(d);
         }
 
-        function populateDynField(containerId, ph1, ph2, prefix, dataArray) {
+        function populateDynField(containerId, ph1, ph2, prefix, dataArr) {
             const container = document.getElementById(containerId);
             if (!container) return;
-            container.innerHTML = ''; // Bersihkan list lama
-            
-            if (Array.isArray(dataArray) && dataArray.length > 0) {
-                dataArray.forEach(item => {
-                    // Memanggil fungsi addDynField yang sudah ada di kode Anda
+            container.innerHTML = ''; // Bersihkan kontainer sebelum mengisi
+            if (dataArr && Array.isArray(dataArr)) {
+                dataArr.forEach(item => {
                     addDynField(containerId, ph1, ph2, prefix, item.name, item.freq);
                 });
             }
@@ -2273,16 +2271,17 @@
             const container = document.getElementById('wpDocList');
             if (!container) return [];
             const docs = [];
-            const rows = container.querySelectorAll('.flex.gap-2.mb-2');
-            rows.forEach(row => {
-                const nameInp = row.querySelector('input[type="text"]');
-                const fileInp = row.querySelector('input[type="file"]');
-                // Ambil data jika nama ada, baik itu file baru atau file lama (jika edit)
-                if (nameInp && (fileInp?.files?.length > 0 || nameInp.dataset.oldUrl)) {
-                    docs.push({
-                        name: nameInp.value,
-                        file: fileInp?.files?.[0] || null,
-                        url: nameInp.dataset.oldUrl || '' // Simpan URL lama jika sedang mode edit
+            Array.from(container.children).forEach(row => {
+                const name = row.querySelector('.doc-name')?.value;
+                const data = row.querySelector('.doc-data')?.value;
+                const type = row.querySelector('.doc-type')?.value;
+                
+                // Pastikan nama dan data tersedia sebelum dimasukkan ke array
+                if (name && data) {
+                    docs.push({ 
+                        name: name, 
+                        data: data, 
+                        type: type || 'application/pdf' 
                     });
                 }
             });
@@ -2291,24 +2290,18 @@
 
         function populateWpDocData(docs) {
             const container = document.getElementById('wpDocList');
-            if (!container) return;
-            container.innerHTML = ''; // Bersihkan list dokumen lama
-            
-            if (Array.isArray(docs) && docs.length > 0) {
+            container.innerHTML = '';
+            if (docs && docs.length > 0) {
                 docs.forEach(doc => {
                     const div = document.createElement('div');
-                    div.className = 'flex flex-col bg-slate-800/80 p-2 rounded-lg border border-slate-600 shadow-sm mb-2';
+                    div.className = 'flex flex-col bg-slate-800/80 p-2 rounded-lg border border-slate-600 shadow-sm';
                     div.innerHTML = `
                         <div class="flex justify-between items-center mb-1.5">
-                            <input type="text" placeholder="Doc Name" value="${doc.name}" class="doc-name w-full bg-slate-900 border border-slate-700 rounded px-2 py-1.5 text-[10px] sm:text-xs text-white outline-none"> 
-                            <button type="button" onclick="this.closest('.flex-col').remove()" class="text-red-400 p-1 ml-2 transition hover:text-red-300">
-                                <i class="fas fa-trash text-xs"></i>
-                            </button>
+                            <input type="text" placeholder="Nama Dokumen" value="${doc.name}" class="doc-name w-full bg-slate-900 border border-slate-700 rounded px-2 py-1.5 text-[10px] sm:text-xs text-white outline-none focus:border-blue-500 font-medium">
+                            <button type="button" onclick="this.closest('.flex-col').remove()" class="text-slate-400 hover:text-red-400 p-1 ml-2 transition"><i class="fas fa-trash text-xs"></i></button>
                         </div>
-                        <div class="file-attached-indicator text-[9px] text-emerald-400 mb-1">
-                            <i class="fas fa-check-circle mr-1"></i> File Linked (Drive/Cloud)
-                        </div>
-                        <input type="file" accept=".pdf,image/*" onchange="handleWpDocUpload(this)" class="w-full text-[9px] sm:text-[10px] text-slate-400 cursor-pointer">
+                        <div class="file-attached-indicator text-[9px] text-emerald-400 mb-1"><i class="fas fa-check-circle mr-1"></i> File Tersimpan</div>
+                        <input type="file" accept=".pdf,image/*" onchange="handleWpDocUpload(this)" class="w-full text-[9px] sm:text-[10px] text-slate-400 file:mr-2 file:py-1 file:px-2 file:rounded-md file:border-0 file:text-[9px] sm:file:text-[10px] file:bg-blue-600/20 file:text-blue-400 hover:file:bg-blue-600/30 cursor-pointer" title="Pilih file baru untuk mengganti">
                         <input type="hidden" class="doc-data" value="${doc.data}">
                         <input type="hidden" class="doc-type" value="${doc.type}">
                     `;
