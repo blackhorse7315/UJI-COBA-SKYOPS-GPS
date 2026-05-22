@@ -373,6 +373,7 @@
                             <div>
                                 <p class="text-[9px] sm:text-[10px] text-magenta-400 uppercase tracking-widest font-bold mb-0.5"><i class="fas fa-route mr-1"></i> ACTIVE FLIGHT PLAN</p>
                                 <h3 id="activeRouteOverlayName" class="text-xs sm:text-sm font-bold text-white uppercase">WIMM-WIII</h3>
+                                <p id="activeRouteOverlayPayload" class="text-[9px] sm:text-[10px] text-cyan-400 font-medium mt-0.5"></p>
                             </div>
                             <button onclick="clearActiveMapRoute()" class="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-slate-800 hover:bg-red-500/20 hover:text-red-400 border border-slate-600 transition flex items-center justify-center text-slate-300 shadow cursor-pointer z-50">
                                 <i class="fas fa-times text-xs"></i>
@@ -547,8 +548,33 @@
                             <div>
                                 <label class="text-[10px] sm:text-xs text-slate-400 mb-1 block">Fuel Onboard</label>
                                 <div class="flex">
-                                    <input type="number" id="rtFuelOnboard" required oninput="renderOFPTable()" class="w-full bg-slate-800 border border-slate-700 rounded-l-lg px-3 py-2 text-xs sm:text-sm outline-none focus:border-blue-500">
+                                    <input type="number" id="rtFuelOnboard" required oninput="renderOFPTable(); calculatePayload()" class="w-full bg-slate-800 border border-slate-700 rounded-l-lg px-3 py-2 text-xs sm:text-sm outline-none focus:border-blue-500">
                                     <span id="rtFuelUnitLabel2" class="bg-slate-700 border border-slate-700 rounded-r-lg px-2 py-2 text-[10px] sm:text-xs flex items-center text-slate-300 uppercase">-</span>
+                                </div>
+                            </div>
+                            
+                            <!-- W&B SECTION INSIDE ROUTE FORM -->
+                            <div class="col-span-1 sm:col-span-2 lg:col-span-3 border-t border-slate-700/50 pt-3 mt-1">
+                                <div class="flex justify-between items-center mb-2">
+                                    <h4 class="text-[10px] sm:text-xs font-bold text-blue-400"><i class="fas fa-balance-scale mr-1"></i> Weight & Balance (<span id="rtWeightUnit">KG</span>)</h4>
+                                </div>
+                                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                                    <div>
+                                        <label class="text-[9px] sm:text-[10px] text-slate-500 mb-1 block">MTOW</label>
+                                        <input type="number" id="rtMtow" readonly class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2 py-1.5 text-[10px] sm:text-xs text-slate-400 outline-none cursor-not-allowed">
+                                    </div>
+                                    <div>
+                                        <label class="text-[9px] sm:text-[10px] text-slate-500 mb-1 block">Empty Weight</label>
+                                        <input type="number" id="rtEmptyWeight" readonly class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2 py-1.5 text-[10px] sm:text-xs text-slate-400 outline-none cursor-not-allowed">
+                                    </div>
+                                    <div>
+                                        <label class="text-[9px] sm:text-[10px] text-slate-400 mb-1 block">Crew Weight (Edit)</label>
+                                        <input type="number" id="rtCrewWeight" oninput="calculatePayload()" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-2 py-1.5 text-[10px] sm:text-xs text-white outline-none focus:border-blue-500" placeholder="0">
+                                    </div>
+                                    <div>
+                                        <label class="text-[9px] sm:text-[10px] text-emerald-400 font-bold mb-1 block">Available Payload</label>
+                                        <input type="number" id="rtPayload" readonly class="w-full bg-emerald-900/20 border border-emerald-500/30 rounded-lg px-2 py-1.5 text-[10px] sm:text-xs text-emerald-400 outline-none font-bold cursor-not-allowed">
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -669,7 +695,7 @@
                                 <span class="text-[10px] sm:text-xs text-slate-400 uppercase">Routing</span>
                                 <span id="detRtOriginDest" class="font-bold text-white text-xs sm:text-sm truncate max-w-[60%]">WIMM <i class="fas fa-arrow-right text-blue-400 mx-1 sm:mx-2 text-[8px] sm:text-xs"></i> WIII</span>
                             </div>
-                            <div class="grid grid-cols-3 gap-1 sm:gap-2 text-center pt-1">
+                            <div class="grid grid-cols-4 gap-1 sm:gap-2 text-center pt-1">
                                 <div>
                                     <p class="text-[8px] sm:text-[10px] text-slate-500 uppercase">Total Dist</p>
                                     <p class="text-xs sm:text-sm font-semibold text-white"><span id="detRtDist">0</span> <span class="text-[8px] sm:text-[10px] text-slate-400">NM</span></p>
@@ -678,9 +704,13 @@
                                     <p class="text-[8px] sm:text-[10px] text-slate-500 uppercase">Total EET</p>
                                     <p id="detRtEET" class="text-xs sm:text-sm font-semibold text-orange-300">00:00</p>
                                 </div>
-                                <div>
+                                <div class="border-r border-slate-700/50">
                                     <p class="text-[8px] sm:text-[10px] text-slate-500 uppercase">Fuel Req</p>
                                     <p class="text-xs sm:text-sm font-semibold text-emerald-400"><span id="detRtFuel">0</span></p>
+                                </div>
+                                <div>
+                                    <p class="text-[8px] sm:text-[10px] text-slate-500 uppercase">Payload</p>
+                                    <p class="text-xs sm:text-sm font-semibold text-cyan-400"><span id="detRtPayload">0</span></p>
                                 </div>
                             </div>
                         </div>
@@ -742,7 +772,7 @@
                                     <th class="px-3 sm:px-6 py-3 sm:py-4">Name</th>
                                     <th class="px-3 sm:px-6 py-3 sm:py-4 hidden md:table-cell">Coordinates (DMS)</th>
                                     <th class="px-3 sm:px-6 py-3 sm:py-4">Elev.</th>
-                                    <th class="px-3 sm:px-6 py-3 sm:py-4 text-right">Action</th>
+                                    <th class="px-3 sm:px-6 py-3 sm:py-4 text-right">Detail</th>
                                 </tr>
                             </thead>
                             <tbody id="waypointTableBody" class="divide-y divide-slate-700/50 bg-slate-900/40">
@@ -802,30 +832,23 @@
                             </div>
                         </div>
 
-                        <div id="heliportFields" class="hidden bg-slate-900/50 p-3 rounded-lg border border-slate-700/50 mt-2 sm:mt-4 space-y-3">
-                            <h4 class="text-xs font-bold text-pink-400 border-b border-slate-700 pb-1 mb-2"><i class="fas fa-h-square mr-1"></i> Heliport Details</h4>
-                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                                <div><label class="text-[9px] text-slate-400">Heliport Name</label><input type="text" id="wpHeliportName" placeholder="e.g. Siloam Hospital Pad" class="w-full bg-slate-800 border border-slate-700 rounded px-2 py-1.5 text-xs outline-none focus:border-pink-500"></div>
-                                <div><label class="text-[9px] text-slate-400">Frequency</label><input type="text" id="wpHeliportFreq" placeholder="e.g. 122.5" class="w-full bg-slate-800 border border-slate-700 rounded px-2 py-1.5 text-xs outline-none focus:border-pink-500"></div>
-                                <div><label class="text-[9px] text-slate-400">Surface</label><input type="text" id="wpHeliportSurface" placeholder="e.g. Concrete" class="w-full bg-slate-800 border border-slate-700 rounded px-2 py-1.5 text-xs outline-none focus:border-pink-500"></div>
-                            </div>
-                        </div>
-
-                        <div id="documentFields" class="hidden bg-slate-900/50 p-3 rounded-lg border border-slate-700/50 mt-2 sm:mt-4">
-                            <div class="flex justify-between items-center mb-2">
-                                <label class="text-[10px] text-blue-400 font-bold"><i class="fas fa-folder-open mr-1"></i> Documents & Charts</label>
-                                <button type="button" onclick="addWpDocField()" class="text-[8px] bg-blue-600/30 text-blue-400 px-2 py-1 rounded hover:bg-blue-600/50 font-bold">+ Add File</button>
-                            </div>
-                            <div id="wpDocList" class="space-y-2 max-h-[150px] overflow-y-auto pr-1 custom-scrollbar"></div>
-                        </div>
-                        
-                        <!-- HELIPORT SPECIFIC FIELDS (NEW) -->
+                        <!-- HELIPORT SPECIFIC FIELDS -->
                         <div id="heliportFields" class="hidden bg-slate-900/50 p-3 rounded-lg border border-slate-700/50 mt-2 sm:mt-4 space-y-3">
                             <h4 class="text-xs font-bold text-pink-400 border-b border-slate-700 pb-1 mb-2"><i class="fas fa-h-square mr-1"></i> Heliport Details</h4>
                             <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
                                 <div><label class="text-[9px] text-slate-400">Heliport Name</label><input type="text" id="wpHeliportName" placeholder="e.g. Siloam Hospital Pad" class="w-full bg-slate-800 border border-slate-700 rounded px-2 py-1.5 text-xs outline-none focus:border-pink-500"></div>
                                 <div><label class="text-[9px] text-slate-400">Frequency</label><input type="text" id="wpHeliportFreq" placeholder="e.g. 122.5" class="w-full bg-slate-800 border border-slate-700 rounded px-2 py-1.5 text-xs outline-none focus:border-pink-500"></div>
                                 <div><label class="text-[9px] text-slate-400">Surface</label><input type="text" id="wpHeliportSurface" placeholder="e.g. Concrete / Grass" class="w-full bg-slate-800 border border-slate-700 rounded px-2 py-1.5 text-xs outline-none focus:border-pink-500"></div>
+                            </div>
+                        </div>
+
+                        <!-- NEW: FIXED 10 DOCUMENT FIELDS -->
+                        <div id="documentFields" class="hidden bg-slate-900/50 p-3 rounded-lg border border-slate-700/50 mt-2 sm:mt-4">
+                            <div class="flex justify-between items-center mb-2">
+                                <label class="text-[10px] text-blue-400 font-bold"><i class="fas fa-folder-open mr-1"></i> Documents & Charts</label>
+                            </div>
+                            <div id="wpDocList" class="space-y-2 max-h-[200px] overflow-y-auto pr-1 custom-scrollbar">
+                                <!-- Isi List akan di-generate otomatis oleh JS -->
                             </div>
                         </div>
 
@@ -889,7 +912,7 @@
                 </div>
             </div>
 
-            <!-- BAGIAN 7.1.5: WAYPOINT DETAIL CARD (NEW) -->
+            <!-- BAGIAN 7.1.5: WAYPOINT DETAIL CARD -->
             <div id="waypointDetailCard" class="print:hidden fixed inset-0 z-[10005] hidden flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
                 <div class="bg-[#111827] w-full max-w-[320px] rounded-2xl relative shadow-2xl border border-slate-700/50 pt-10 pb-6 px-6 mt-6 fade-in">
                     <!-- Close Button -->
@@ -1043,6 +1066,47 @@
                             </div>
                         </div>
 
+                        <!-- NEW: Weight & Balance -->
+                        <div class="border-t border-slate-700/80 pt-3 sm:pt-4 mt-2">
+                            <div class="flex justify-between items-center mb-2">
+                                <h4 class="text-[10px] sm:text-xs font-bold text-blue-400"><i class="fas fa-balance-scale mr-1"></i> Weight & Balance</h4>
+                                <select id="acWeightUnit" class="bg-slate-700 border border-slate-700 rounded px-2 py-1 text-[10px] sm:text-xs outline-none text-white focus:border-blue-500">
+                                    <option value="kg">KG</option>
+                                    <option value="lbs">LBS</option>
+                                </select>
+                            </div>
+                            <div class="grid grid-cols-2 gap-3 sm:gap-4 mb-3">
+                                <div>
+                                    <label class="text-[9px] sm:text-[10px] text-slate-400 mb-1 block">MTOW</label>
+                                    <input type="number" step="any" id="acMtow" placeholder="0" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-xs sm:text-sm outline-none focus:border-blue-500">
+                                </div>
+                                <div>
+                                    <label class="text-[9px] sm:text-[10px] text-slate-400 mb-1 block">Empty Weight</label>
+                                    <input type="number" step="any" id="acEmptyWeight" placeholder="0" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-xs sm:text-sm outline-none focus:border-blue-500">
+                                </div>
+                            </div>
+                            
+                            <h4 class="text-[10px] sm:text-xs font-bold text-slate-300 mb-2 border-b border-slate-700 pb-1">Crew Weights</h4>
+                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
+                                <div>
+                                    <label class="text-[9px] sm:text-[10px] text-slate-400 mb-1 block">PIC</label>
+                                    <input type="number" step="any" id="acPic" placeholder="0" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-blue-500">
+                                </div>
+                                <div>
+                                    <label class="text-[9px] sm:text-[10px] text-slate-400 mb-1 block">SIC</label>
+                                    <input type="number" step="any" id="acSic" placeholder="0" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-blue-500">
+                                </div>
+                                <div>
+                                    <label class="text-[9px] sm:text-[10px] text-slate-400 mb-1 block">Engineer 1</label>
+                                    <input type="number" step="any" id="acEng1" placeholder="0" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-blue-500">
+                                </div>
+                                <div>
+                                    <label class="text-[9px] sm:text-[10px] text-slate-400 mb-1 block">Engineer 2</label>
+                                    <input type="number" step="any" id="acEng2" placeholder="0" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-blue-500">
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="flex gap-2 sm:gap-3 pt-3 sm:pt-4 border-t border-slate-700 mt-4 sm:mt-6">
                             <button type="button" onclick="closeAircraftForm()" class="flex-1 bg-slate-800 border border-slate-700 hover:bg-slate-700 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm transition">Cancel</button>
                             <button type="submit" class="flex-1 bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition shadow-lg shadow-blue-500/20 text-white">Save Profile</button>
@@ -1077,6 +1141,29 @@
                             <div class="flex items-center text-slate-400 text-xs sm:text-sm"><i class="fas fa-gas-pump w-5 sm:w-6 text-center mr-1 sm:mr-2"></i> Fuel Consump.</div>
                             <div class="font-bold text-white text-sm sm:text-base"><span id="detailFuel">2500</span> <span id="detailFuelUnit" class="text-[10px] sm:text-xs text-slate-500 font-normal">lbs/hr</span></div>
                         </div>
+
+                        <!-- NEW: Weight Data Detail -->
+                        <div class="bg-slate-900/80 p-3 sm:p-4 rounded-xl border border-slate-700/50 flex flex-col gap-2">
+                            <div class="flex justify-between items-center pb-2 border-b border-slate-700/50">
+                                <div class="flex items-center text-slate-400 text-xs sm:text-sm"><i class="fas fa-balance-scale w-5 sm:w-6 text-center mr-1 sm:mr-2"></i> Weight Data (<span id="detailWeightUnit" class="uppercase">KG</span>)</div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-2 text-center">
+                                <div class="bg-slate-800/50 p-2 rounded">
+                                    <p class="text-[9px] text-slate-500 uppercase font-medium">MTOW</p>
+                                    <p class="text-xs sm:text-sm font-bold text-white" id="detailMtow">0</p>
+                                </div>
+                                <div class="bg-slate-800/50 p-2 rounded">
+                                    <p class="text-[9px] text-slate-500 uppercase font-medium">Empty Weight</p>
+                                    <p class="text-xs sm:text-sm font-bold text-white" id="detailEmpty">0</p>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-4 gap-1 text-center mt-1">
+                                <div class="bg-slate-800/30 p-1.5 rounded"><p class="text-[8px] text-slate-500 uppercase">PIC</p><p class="text-[10px] sm:text-xs font-semibold text-slate-300" id="detailPic">0</p></div>
+                                <div class="bg-slate-800/30 p-1.5 rounded"><p class="text-[8px] text-slate-500 uppercase">SIC</p><p class="text-[10px] sm:text-xs font-semibold text-slate-300" id="detailSic">0</p></div>
+                                <div class="bg-slate-800/30 p-1.5 rounded"><p class="text-[8px] text-slate-500 uppercase">ENG 1</p><p class="text-[10px] sm:text-xs font-semibold text-slate-300" id="detailEng1">0</p></div>
+                                <div class="bg-slate-800/30 p-1.5 rounded"><p class="text-[8px] text-slate-500 uppercase">ENG 2</p><p class="text-[10px] sm:text-xs font-semibold text-slate-300" id="detailEng2">0</p></div>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="relative z-10 flex gap-2 sm:gap-3 pt-4 sm:pt-6 mt-1 sm:mt-2">
@@ -1090,6 +1177,14 @@
             <!-- ========================================== -->
             <!--          BAGIAN 9: TAB - DOCUMENT           -->
             <!-- ========================================== -->
+            <div id="tab-document" class="tab-content absolute inset-0 p-3 sm:p-6 hidden h-full overflow-hidden">
+                <div class="w-full h-full glass-panel rounded-2xl sm:rounded-3xl p-4 sm:p-6 flex flex-col items-center justify-center text-center">
+                    <i class="fas fa-folder-open text-6xl sm:text-8xl text-slate-700/50 mb-4"></i>
+                    <h2 class="text-xl sm:text-2xl font-bold text-slate-400">Document Manager</h2>
+                    <p class="text-xs sm:text-sm text-slate-500 mt-2 max-w-md mx-auto">Dokumen dan charts penerbangan dapat dikelola dan diakses secara langsung melalui <strong class="text-blue-400">Tab Waypoint DB</strong> di masing-masing detail bandara/heliport.</p>
+                </div>
+            </div>
+
     <!-- BAGIAN X: DOCUMENT PREVIEW MODAL -->
     <div id="docPreviewModal" class="print:hidden fixed inset-0 z-[10020] hidden flex items-center justify-center bg-black/90 backdrop-blur-md p-2 sm:p-4 fade-in">
         <div class="w-full h-full max-w-5xl bg-[#0f172a] rounded-2xl flex flex-col shadow-2xl overflow-hidden border border-slate-700">
@@ -1115,14 +1210,17 @@
     <!-- AREA CETAK OFP (Hanya Tampil Saat Dicetak / Ctrl+P) -->
     <div id="printArea" class="hidden print:block bg-white text-black p-8 min-h-screen absolute inset-0 z-[99999]"></div>
 
-    <!--  <!-- ========================================== -->
+    <!-- ========================================== -->
     <!--          BAGIAN 10: JAVASCRIPT LOGIC        -->
     <!-- ========================================== -->
     <script>
         // --- KONFIGURASI GOOGLE SHEETS & DRIVE ---
         // GANTI URL DI BAWAH DENGAN URL WEB APP ANDA DARI GOOGLE SCRIPT
-        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwRP2zueAFjNpTjOu8fuSQWYnKz5OkfkZBwMObavmok_XivomGnLMy89_LuQnAoz3Xf/exec'; 
-        const DRIVE_FOLDER_ID = '1d7t38ESJqaXGmQU3-hmqdGGnlgeh1ZmW'; // Folder ID tujuan untuk Dokumen Airport
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwzk17en5nR_2qAwmToOj3lZYeRHUKQ-DQzSQaxf1sKsTTppPy7K04ZsKMeakd5gIrx/exec'; 
+        const DRIVE_FOLDER_ID = '1lStx1qqfrFuR0cgifu7eS3AR-CjAF6tx'; // Sesuai permintaan
+        
+        // Konstanta untuk 10 Slot Dokumen Spesifik
+        const DOC_SLOTS = ['Airport Data', 'STAR', 'SID', 'VOR 1', 'VOR 2', 'ILS 1', 'ILS 2', 'RNP 1', 'RNP 2', 'OTHER'];
         
         // --- GLOBAL STATE ---
         let usersData = [];
@@ -1165,9 +1263,6 @@
         // ==========================================
         // --- GOOGLE SHEETS API HELPERS          ---
         // ==========================================
-       // ==========================================
-        // --- GOOGLE SHEETS API HELPERS          ---
-        // ==========================================
         async function fetchFromSheet(sheetName) {
             if (!GOOGLE_SCRIPT_URL) return null;
             try {
@@ -1184,30 +1279,36 @@
         async function postToSheet(sheetName, data) {
             if (!GOOGLE_SCRIPT_URL) return;
             try {
-                // Tambahkan folderId dan instruksi upload file ke payload
                 const payload = {
                     sheet: sheetName,
-                    folderId: DRIVE_FOLDER_ID, // ID Folder yang sudah didefinisikan di awal
+                    folderId: DRIVE_FOLDER_ID,
                     data: data,
-                    action: "saveWaypointWithFiles" // Instruksi khusus untuk backend
+                    action: "saveWaypointWithFiles" 
                 };
 
                 const response = await fetch(GOOGLE_SCRIPT_URL, { 
                     method: 'POST', 
-                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    redirect: 'follow',
+                    headers: { 'Content-Type': 'text/plain' },
                     body: JSON.stringify(payload) 
                 });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
                 
                 const result = await response.json();
                 if (result.status === "success") {
                     console.log(`Successfully synced ${sheetName}`);
                     return result;
+                } else {
+                    throw new Error(result.message || "Unknown backend error");
                 }
             } catch (err) { 
                 console.error(`Error Posting ${sheetName}:`, err); 
+                throw err;
             }
         }
+        
         // ==========================================
         // --- MATH & UTILITY HELPERS             ---
         // ==========================================
@@ -1287,6 +1388,9 @@
             if (wp && wp.airportData && wp.airportData.documents) {
                 const doc = wp.airportData.documents[docIdx];
                 if (doc) { openDocPreview(doc.name, doc.data, doc.type); }
+            } else if (wp && wp.heliportData && wp.heliportData.documents) {
+                const doc = wp.heliportData.documents[docIdx];
+                if (doc) { openDocPreview(doc.name, doc.data, doc.type); }
             }
         }
 
@@ -1301,12 +1405,10 @@
 
             if (type.includes('pdf')) {
                 let finalUrl = data;
-                // Jika data adalah link Drive, ubah formatnya agar bisa di-embed
                 if (data.includes('drive.google.com')) {
                     finalUrl = data.replace('/view?usp=sharing', '/preview').replace('/view', '/preview');
                     content.innerHTML = `<iframe src="${finalUrl}" class="w-full h-full rounded-lg bg-white border-0 shadow-inner"></iframe>`;
                 } else {
-                    // Jika data adalah Base64, gunakan Blob agar lancar di browser
                     try {
                         const base64Data = data.split(',')[1];
                         const byteCharacters = atob(base64Data);
@@ -1325,6 +1427,7 @@
             }
             modal.classList.remove('hidden');
         }
+        
         function closeDocPreview() {
             document.getElementById('docPreviewModal').classList.add('hidden');
             document.getElementById('docPreviewContent').innerHTML = '';
@@ -1340,7 +1443,6 @@
         }
 
         async function getElevationFeet(lat, lon) {
-            // 1. Coba Open-Meteo API (Akurat & Cepat)
             try {
                 const res = await fetch(`https://api.open-meteo.com/v1/elevation?latitude=${lat.toFixed(6)}&longitude=${lon.toFixed(6)}`);
                 if (res.ok) {
@@ -1349,7 +1451,6 @@
                 }
             } catch(e) { console.warn("Open-Meteo Error:", e); }
 
-            // 2. Fallback OpenTopoData (SRTM90m) jika API pertama gagal/limit
             try {
                 const res2 = await fetch(`https://api.opentopodata.org/v1/srtm90m?locations=${lat.toFixed(6)},${lon.toFixed(6)}`);
                 if (res2.ok) {
@@ -1358,7 +1459,7 @@
                 }
             } catch(e) { console.warn("OpenTopoData Error:", e); }
             
-            return 0; // Default jika memang berada di tengah lautan bebas atau offline
+            return 0; 
         }
 
         // --- VIEW CONTROLLER ---
@@ -1485,8 +1586,19 @@
         function switchTab(tabId) {
             document.querySelectorAll('.tab-content').forEach(el => { el.classList.add('hidden'); el.classList.remove('fade-in'); });
             document.querySelectorAll('.tab-btn').forEach(el => { el.classList.remove('bg-blue-600/20', 'text-blue-400', 'border', 'border-blue-500/50'); el.classList.add('text-slate-400', 'hover:text-slate-200', 'hover:bg-slate-800'); });
-            const activeTab = document.getElementById(`tab-${tabId}`); activeTab.classList.remove('hidden'); activeTab.classList.add('fade-in');
-            const activeBtn = document.getElementById(`tabBtn-${tabId}`); activeBtn.classList.remove('text-slate-400', 'hover:text-slate-200', 'hover:bg-slate-800'); activeBtn.classList.add('bg-blue-600/20', 'text-blue-400', 'border', 'border-blue-500/50');
+            
+            const activeTab = document.getElementById(`tab-${tabId}`); 
+            if (activeTab) {
+                activeTab.classList.remove('hidden'); 
+                activeTab.classList.add('fade-in');
+            }
+            
+            const activeBtn = document.getElementById(`tabBtn-${tabId}`); 
+            if (activeBtn) {
+                activeBtn.classList.remove('text-slate-400', 'hover:text-slate-200', 'hover:bg-slate-800'); 
+                activeBtn.classList.add('bg-blue-600/20', 'text-blue-400', 'border', 'border-blue-500/50');
+            }
+            
             if (tabId === 'map') { setTimeout(() => { if (!map) { initLeafletMap(); } else { map.invalidateSize(); } }, 150); }
         }
 
@@ -1494,27 +1606,18 @@
         // --- REAL MAP LOGIC (LEAFLET)           ---
         // ==========================================
         function initLeafletMap() {
-            // Optimasi Performa Mesin Leaflet
             map = L.map('realMap', { 
                 zoomControl: false,
-                preferCanvas: true,        // Mempercepat rendering garis/rute dengan HTML5 Canvas
-                wheelPxPerZoomLevel: 120,  // Scroll zoom lebih halus
-                fadeAnimation: true,       // Transisi zoom yang halus
+                preferCanvas: true,
+                wheelPxPerZoomLevel: 120,
+                fadeAnimation: true,
                 markerZoomAnimation: true
             }).setView([-0.789, 118.921], 5); 
             
             L.control.zoom({ position: 'bottomleft' }).addTo(map);
 
-            // Optimasi Penarikan Data Tile (Gambar Peta)
-            const tileOpt = {
-                maxZoom: 19,
-                keepBuffer: 8,             // Simpan area peta yang luas di memori agar geser peta tidak blank/delay
-                updateWhenZooming: false,  // Jangan mendownload peta saat sedang animasi Zoom
-                updateInterval: 50         // Tarik data seketika saat peta bergeser (default 200ms)
-                // Hapus crossOrigin: true karena menyebabkan error CORS (akses diblokir)
-            };
+            const tileOpt = { maxZoom: 19, keepBuffer: 8, updateWhenZooming: false, updateInterval: 50 };
 
-            // Menggunakan server tile Google Maps yang lebih stabil dan cepat tanpa error CORS
             const satelliteHybrid = L.tileLayer('https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}', { ...tileOpt, attribution: '&copy; Google' });
             const streetMap = L.tileLayer('https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', { ...tileOpt, attribution: '&copy; Google' });
             const terrainMap = L.tileLayer('https://mt1.google.com/vt/lyrs=p&x={x}&y={y}&z={z}', { ...tileOpt, attribution: '&copy; Google' });
@@ -1580,17 +1683,14 @@
             const wp = waypointsData.find(w => w.id === id); 
             if (!wp) return;
             
-            // Jika Form Route sedang terbuka (misal di tab route), proses langsung ke form
             if (!document.getElementById('routeFormModal').classList.contains('hidden')) { 
                 currentRouteWps.push({...wp}); renderOFPTable(); map.closePopup(); return; 
             }
 
-            // Jika sedang dalam simulasi/navigasi, cegah penambahan
             if (flightMode !== 'none') {
                 alert("Harap matikan mode Simulasi/Navigasi terlebih dahulu."); return;
             }
 
-            // Aksi Default: Buka HUD Builder di Map
             mapBuilderWps.push({...wp});
             
             const builderHUD = document.getElementById('mapRouteBuilderHUD');
@@ -1658,9 +1758,7 @@
                     const markerLatLng = e.target.getLatLng(); 
                     handleBuilderTrackDrop(markerLatLng.lat, markerLatLng.lng, i+1); 
                     
-                    // Kembalikan visual garis rute ke posisi semula jika pengguna membatalkan (cancel) drop
                     polyline.setLatLngs(latlngs); 
-                    // Kembalikan posisi marker (titik drag putih) ke tengah garis
                     midMarker.setLatLng([midLat, midLon]);
                 });
             }
@@ -1668,7 +1766,6 @@
 
         async function handleBuilderTrackDrop(lat, lng, insertIndex) {
             let nearbyWps = waypointsData.map(wp => { return { wp: wp, dist: calcDistanceNM(lat, lng, wp.lat, wp.lon) }; });
-            // Mengubah radius deteksi waypoint menjadi 4 NM
             nearbyWps = nearbyWps.filter(item => item.dist <= 4).sort((a,b) => a.dist - b.dist);
 
             if (nearbyWps.length > 0) {
@@ -1713,15 +1810,14 @@
             const fuelOb = document.getElementById('builderFuelOnboard').value;
             
             switchTab('route');
-            openRouteForm(); // Initialize blank form
+            openRouteForm(); 
             
-            // Transfer built route to form
             currentRouteWps = [...mapBuilderWps];
             if (acId) { document.getElementById('rtAircraft').value = acId; handleRouteAircraftChange(); }
             if (fuelOb) { document.getElementById('rtFuelOnboard').value = fuelOb; }
             
             renderOFPTable();
-            cancelMapBuilder(); // Clear HUD & Map lines
+            cancelMapBuilder(); 
         }
 
         // --- MAP ACTIVE ROUTE (EXISTING) ---
@@ -1745,14 +1841,18 @@
             const latlngs = rt.waypoints.map(wp => [wp.lat, wp.lon]);
             const bounds = L.latLngBounds(latlngs);
             
-            // Peta akan otomatis melakukan zoom out / in menyesuaikan rute ke ukuran normal
             map.flyToBounds(bounds, { padding: [50, 50], duration: 1.5 });
         }
 
         function drawActiveRoute() {
             if (!activeRouteLayerGroup) return; activeRouteLayerGroup.clearLayers();
             const rt = routesData.find(r => r.id === activeMapRouteId); if (!rt || !rt.waypoints || rt.waypoints.length === 0) return;
-            document.getElementById('activeRouteOverlay').classList.remove('hidden'); document.getElementById('activeRouteOverlayName').textContent = rt.name;
+            const ac = aircraftsData.find(a => a.id === rt.aircraftId);
+            
+            document.getElementById('activeRouteOverlay').classList.remove('hidden'); 
+            document.getElementById('activeRouteOverlayName').textContent = rt.name;
+            document.getElementById('activeRouteOverlayPayload').innerHTML = `<i class="fas fa-weight-hanging mr-1"></i> Payload: ${rt.payload || 0} <span class="text-[8px]">${ac ? (ac.weightUnit || 'KG').toUpperCase() : 'KG'}</span>`;
+            
             const latlngs = rt.waypoints.map(wp => [wp.lat, wp.lon]);
             const polyline = L.polyline(latlngs, { color: '#d946ef', weight: 5, opacity: 0.9 }).addTo(activeRouteLayerGroup); map.fitBounds(polyline.getBounds(), { padding: [50, 50] });
 
@@ -1772,9 +1872,7 @@
                     const markerLatLng = e.target.getLatLng(); 
                     handleTrackDrop(markerLatLng.lat, markerLatLng.lng, i+1); 
                     
-                    // Kembalikan visual garis rute ke posisi semula jika pengguna membatalkan drop
                     polyline.setLatLngs(latlngs); 
-                    // Kembalikan posisi marker ke tengah garis
                     midMarker.setLatLng([midLat, midLon]);
                 });
             }
@@ -1782,7 +1880,6 @@
 
         async function handleTrackDrop(lat, lng, insertIndex) {
             let nearbyWps = waypointsData.map(wp => { return { wp: wp, dist: calcDistanceNM(lat, lng, wp.lat, wp.lon) }; });
-            // Mengubah radius deteksi waypoint menjadi 4 NM
             nearbyWps = nearbyWps.filter(item => item.dist <= 4).sort((a,b) => a.dist - b.dist);
 
             if (nearbyWps.length > 0) {
@@ -1832,17 +1929,14 @@
             const filtered = waypointsData.filter(wp => wp.name.toLowerCase().includes(search));
             filtered.forEach(wp => {
                 const tr = document.createElement('tr'); 
-                // Ubah: Menambahkan cursor-pointer dan event onclick pada baris
                 tr.className = 'hover:bg-slate-800/50 transition group cursor-pointer';
                 tr.onclick = () => openWaypointDetail(wp.id);
                 
-                // Ubah: Menambahkan event.stopPropagation() pada tombol edit/delete agar modal detail tidak ter-trigger saat tombol tersebut diklik
-                tr.innerHTML = `<td class="px-3 sm:px-6 py-3 sm:py-4">${getIconHTML(wp.type)}</td><td class="px-3 sm:px-6 py-3 sm:py-4 font-bold text-blue-400 tracking-wide">${wp.name.toUpperCase()}</td><td class="px-3 sm:px-6 py-3 sm:py-4 hidden md:table-cell text-slate-300"><div class="text-[10px] sm:text-xs">${decToDMSStr(wp.lat, true)}</div><div class="text-[10px] sm:text-xs text-slate-400">${decToDMSStr(wp.lon, false)}</div></td><td class="px-3 sm:px-6 py-3 sm:py-4 font-medium">${wp.elev} <span class="text-[8px] sm:text-[10px] text-slate-500">ft</span></td><td class="px-3 sm:px-6 py-3 sm:py-4 text-right opacity-50 group-hover:opacity-100 transition"><button onclick="event.stopPropagation(); editWaypoint('${wp.id}')" class="text-blue-400 hover:text-blue-300 mr-2 sm:mr-3 p-1.5 sm:p-2 bg-blue-500/10 rounded-lg"><i class="fas fa-edit"></i></button><button onclick="event.stopPropagation(); deleteWaypoint('${wp.id}')" class="text-red-400 hover:text-red-300 p-1.5 sm:p-2 bg-red-500/10 rounded-lg"><i class="fas fa-trash"></i></button></td>`;
+                tr.innerHTML = `<td class="px-3 sm:px-6 py-3 sm:py-4">${getIconHTML(wp.type)}</td><td class="px-3 sm:px-6 py-3 sm:py-4 font-bold text-blue-400 tracking-wide">${wp.name.toUpperCase()}</td><td class="px-3 sm:px-6 py-3 sm:py-4 hidden md:table-cell text-slate-300"><div class="text-[10px] sm:text-xs">${decToDMSStr(wp.lat, true)}</div><div class="text-[10px] sm:text-xs text-slate-400">${decToDMSStr(wp.lon, false)}</div></td><td class="px-3 sm:px-6 py-3 sm:py-4 font-medium">${wp.elev} <span class="text-[8px] sm:text-[10px] text-slate-500">ft</span></td><td class="px-3 sm:px-6 py-3 sm:py-4 text-right opacity-50 group-hover:opacity-100 transition text-slate-400"><i class="fas fa-chevron-right"></i></td>`;
                 tbody.appendChild(tr);
             });
         }
 
-        // FUNGSI BARU: Buka Kartu Detail Waypoint sesuai desain
         function openWaypointDetail(id) {
             const wp = waypointsData.find(w => w.id === id); 
             if(!wp) return;
@@ -2071,7 +2165,6 @@
             };
 
             try {
-                // Update local storage dulu
                 if (id) {
                     const idx = waypointsData.findIndex(w => w.id === id);
                     if (idx !== -1) waypointsData[idx] = newWp;
@@ -2079,10 +2172,8 @@
                     waypointsData.push(newWp);
                 }
 
-                // Kirim ke Backend GAS
                 const response = await postToSheet('waypoints', waypointsData);
                 
-                // Jika backend berhasil mengubah Base64 menjadi URL, tarik ulang data terbaru
                 if (response && response.status === "success") {
                     await loadWaypoints(); 
                 }
@@ -2091,7 +2182,8 @@
                 renderWaypoints();
                 if (map) updateMapWaypoints();
             } catch (err) {
-                alert("Gagal menyimpan data. Pastikan koneksi stabil.");
+                console.error("Gagal simpan:", err);
+                alert("Gagal menyimpan data ke Cloud.\n\nSebab yang mungkin:\n1. Ukuran file dokumen terlalu besar.\n2. Pengaturan Deploy Google Script salah (Harus 'Execute as: Me' & Access: 'Anyone').\n3. Jaringan terputus.");
             } finally {
                 if (btn) { btn.innerHTML = 'Save Data'; btn.disabled = false; }
             }
@@ -2101,6 +2193,11 @@
             const wp = waypointsData.find(w => w.id === id); if(!wp) return; 
             closeWaypointDetail(); // Perbaikan: Tutup Detail Card agar Form Edit terlihat
             openWaypointModal(); 
+            
+            // Ubah Judul Modal menjadi Edit Waypoint
+            const titleEl = document.getElementById('wpModalTitle');
+            if (titleEl) titleEl.innerHTML = '<i class="fas fa-edit text-blue-400 mr-2"></i>Edit Waypoint';
+
             document.getElementById('wpId').value = wp.id; 
             document.getElementById('wpName').value = wp.name; 
             document.getElementById('wpType').value = wp.type; 
@@ -2156,6 +2253,10 @@
     
     const wpId = document.getElementById('wpId');
     if (wpId) wpId.value = '';
+
+    // Reset title menjadi Add New Waypoint
+    const titleEl = document.getElementById('wpModalTitle');
+    if (titleEl) titleEl.innerHTML = '<i class="fas fa-map-marker-alt text-blue-400 mr-2"></i>Add New Waypoint';
 
     // Pembersihan list secara aman (Null-Safe)
     const lists = ['wpComList', 'wpVorList', 'wpIlsList', 'wpAdfList', 'wpRnavList', 'wpDocList'];
@@ -2220,7 +2321,7 @@
         function populateDynField(containerId, ph1, ph2, prefix, dataArr) {
             const container = document.getElementById(containerId);
             if (!container) return;
-            container.innerHTML = ''; // Bersihkan kontainer sebelum mengisi
+            container.innerHTML = ''; 
             if (dataArr && Array.isArray(dataArr)) {
                 dataArr.forEach(item => {
                     addDynField(containerId, ph1, ph2, prefix, item.name, item.freq);
@@ -2228,43 +2329,56 @@
             }
         }
 
-        function handleWpDocUpload(input) {
-             const file = input.files[0];
+        // --- NEW: FIXED 10 DOCUMENT SLOTS LOGIC ---
+        function initWpDocFields() {
+            const container = document.getElementById('wpDocList');
+            if(!container) return;
+            container.innerHTML = '';
+            
+            DOC_SLOTS.forEach(slotName => {
+                const div = document.createElement('div');
+                div.className = 'flex flex-col bg-slate-800/80 p-2 rounded-lg border border-slate-600 shadow-sm doc-slot-item';
+                div.innerHTML = `
+                    <div class="flex justify-between items-center mb-1.5">
+                        <span class="text-[10px] sm:text-xs font-bold text-white doc-name-label">${slotName}</span>
+                        <input type="hidden" class="doc-name" value="${slotName}">
+                        <button type="button" onclick="clearWpDocSlot(this)" class="text-slate-400 hover:text-red-400 p-1 ml-2 transition hidden clear-doc-btn" title="Hapus File"><i class="fas fa-trash text-xs"></i></button>
+                    </div>
+                    <div class="file-attached-indicator text-[9px] text-emerald-400 mb-1 hidden"><i class="fas fa-check-circle mr-1"></i> <span class="status-text">File Tersimpan</span></div>
+                    <input type="file" accept=".pdf,image/*" onchange="handleWpDocUploadFixed(this)" class="w-full text-[9px] sm:text-[10px] text-slate-400 file:mr-2 file:py-1 file:px-2 file:rounded-md file:border-0 file:text-[9px] sm:file:text-[10px] file:bg-blue-600/20 file:text-blue-400 hover:file:bg-blue-600/30 cursor-pointer doc-file-input">
+                    <input type="hidden" class="doc-data" value="">
+                    <input type="hidden" class="doc-type" value="">
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function clearWpDocSlot(btn) {
+            const container = btn.closest('.doc-slot-item');
+            container.querySelector('.doc-data').value = '';
+            container.querySelector('.doc-type').value = '';
+            container.querySelector('.doc-file-input').value = '';
+            container.querySelector('.file-attached-indicator').classList.add('hidden');
+            btn.classList.add('hidden');
+        }
+
+        function handleWpDocUploadFixed(input) {
+            const file = input.files[0];
             if (file) {
-                // BATAS FILE SIZE DIHAPUS - Bisa upload berapapun ukurannya!
                 const reader = new FileReader();
                 reader.onload = function(e) {
-                    const container = input.closest('.flex-col');
+                    const container = input.closest('.doc-slot-item');
                     container.querySelector('.doc-data').value = e.target.result;
                     container.querySelector('.doc-type').value = file.type;
-                    let fileIndicator = container.querySelector('.file-attached-indicator');
-                    if (!fileIndicator) {
-                        fileIndicator = document.createElement('div');
-                        fileIndicator.className = 'file-attached-indicator text-[9px] text-emerald-400 mb-1';
-                        fileIndicator.innerHTML = '<i class="fas fa-check-circle mr-1"></i> File Siap Diupload ke Drive';
-                        input.parentNode.insertBefore(fileIndicator, input);
-                    } else {
-                        fileIndicator.innerHTML = '<i class="fas fa-check-circle mr-1"></i> File Baru Siap Diupload';
-                    }
+                    
+                    const indicator = container.querySelector('.file-attached-indicator');
+                    indicator.classList.remove('hidden');
+                    indicator.querySelector('.status-text').textContent = 'File Baru Siap Diupload';
+                    
+                    container.querySelector('.clear-doc-btn').classList.remove('hidden');
                 }
                 reader.readAsDataURL(file);
             }
-        }
-
-        function addWpDocField() {
-            const container = document.getElementById('wpDocList');
-            const div = document.createElement('div');
-            div.className = 'flex flex-col bg-slate-800/80 p-2 rounded-lg border border-slate-600 shadow-sm';
-            div.innerHTML = `
-                <div class="flex justify-between items-center mb-1.5">
-                    <input type="text" placeholder="Nama Dokumen (mis. Chart)" class="doc-name w-full bg-slate-900 border border-slate-700 rounded px-2 py-1.5 text-[10px] sm:text-xs text-white outline-none focus:border-blue-500 font-medium">
-                    <button type="button" onclick="this.closest('.flex-col').remove()" class="text-slate-400 hover:text-red-400 p-1 ml-2 transition"><i class="fas fa-trash text-xs"></i></button>
-                </div>
-                <input type="file" accept=".pdf,image/*" onchange="handleWpDocUpload(this)" class="w-full text-[9px] sm:text-[10px] text-slate-400 file:mr-2 file:py-1 file:px-2 file:rounded-md file:border-0 file:text-[9px] sm:file:text-[10px] file:bg-blue-600/20 file:text-blue-400 hover:file:bg-blue-600/30 cursor-pointer">
-                <input type="hidden" class="doc-data">
-                <input type="hidden" class="doc-type">
-            `;
-            container.appendChild(div);
         }
 
         function getWpDocData() {
@@ -2272,12 +2386,12 @@
             if (!container) return [];
             const docs = [];
             Array.from(container.children).forEach(row => {
-                const name = row.querySelector('.doc-name')?.value;
-                const data = row.querySelector('.doc-data')?.value;
-                const type = row.querySelector('.doc-type')?.value;
+                const name = row.querySelector('.doc-name').value;
+                const data = row.querySelector('.doc-data').value;
+                const type = row.querySelector('.doc-type').value;
                 
-                // Pastikan nama dan data tersedia sebelum dimasukkan ke array
-                if (name && data) {
+                // Hanya push jika ada datanya
+                if (data) {
                     docs.push({ 
                         name: name, 
                         data: data, 
@@ -2289,23 +2403,33 @@
         }
 
         function populateWpDocData(docs) {
+            initWpDocFields(); // Reset 10 slot terlebih dahulu
             const container = document.getElementById('wpDocList');
-            container.innerHTML = '';
             if (docs && docs.length > 0) {
-                docs.forEach(doc => {
-                    const div = document.createElement('div');
-                    div.className = 'flex flex-col bg-slate-800/80 p-2 rounded-lg border border-slate-600 shadow-sm';
-                    div.innerHTML = `
-                        <div class="flex justify-between items-center mb-1.5">
-                            <input type="text" placeholder="Nama Dokumen" value="${doc.name}" class="doc-name w-full bg-slate-900 border border-slate-700 rounded px-2 py-1.5 text-[10px] sm:text-xs text-white outline-none focus:border-blue-500 font-medium">
-                            <button type="button" onclick="this.closest('.flex-col').remove()" class="text-slate-400 hover:text-red-400 p-1 ml-2 transition"><i class="fas fa-trash text-xs"></i></button>
-                        </div>
-                        <div class="file-attached-indicator text-[9px] text-emerald-400 mb-1"><i class="fas fa-check-circle mr-1"></i> File Tersimpan</div>
-                        <input type="file" accept=".pdf,image/*" onchange="handleWpDocUpload(this)" class="w-full text-[9px] sm:text-[10px] text-slate-400 file:mr-2 file:py-1 file:px-2 file:rounded-md file:border-0 file:text-[9px] sm:file:text-[10px] file:bg-blue-600/20 file:text-blue-400 hover:file:bg-blue-600/30 cursor-pointer" title="Pilih file baru untuk mengganti">
-                        <input type="hidden" class="doc-data" value="${doc.data}">
-                        <input type="hidden" class="doc-type" value="${doc.type}">
-                    `;
-                    container.appendChild(div);
+                Array.from(container.children).forEach(row => {
+                    const slotName = row.querySelector('.doc-name').value;
+                    const matchingDoc = docs.find(d => d.name === slotName);
+                    
+                    if (matchingDoc && matchingDoc.data) {
+                        row.querySelector('.doc-data').value = matchingDoc.data;
+                        row.querySelector('.doc-type').value = matchingDoc.type || 'application/pdf';
+                        
+                        const indicator = row.querySelector('.file-attached-indicator');
+                        indicator.classList.remove('hidden');
+                        
+                        // Cek apakah data dari DB sudah berupa link Google Drive
+                        if (matchingDoc.data.includes('drive.google.com')) {
+                            // Ubah otomatis menjadi format /preview
+                            const viewLink = matchingDoc.data.replace('/view?usp=sharing', '/preview').replace('/view', '/preview');
+                            indicator.querySelector('.status-text').innerHTML = `<a href="${viewLink}" target="_blank" class="text-blue-400 hover:text-blue-300 underline"><i class="fas fa-external-link-alt"></i> Tersimpan di Drive</a>`;
+                        } else {
+                            // Base64 (Belum tersinkronisasi)
+                            indicator.querySelector('.status-text').textContent = 'File Tersimpan Lokal';
+                        }
+                        
+                        row.querySelector('.clear-doc-btn').classList.remove('hidden');
+                        row.querySelector('.doc-file-input').title = "Pilih file baru untuk mengganti";
+                    }
                 });
             }
         }
@@ -2384,7 +2508,7 @@
             aircraftsData.forEach(ac => {
                 const isHeli = ac.model === 'Helicopter'; const iconClass = isHeli ? 'fa-helicopter' : 'fa-plane'; const bgGradient = isHeli ? 'from-purple-900/40 to-slate-900/80' : 'from-blue-900/40 to-slate-900/80'; const borderClass = isHeli ? 'border-purple-500/30' : 'border-blue-500/30';
                 const card = document.createElement('div'); card.className = `bg-gradient-to-br ${bgGradient} border ${borderClass} rounded-2xl p-4 sm:p-5 relative overflow-hidden group cursor-pointer transition-transform hover:-translate-y-1 hover:shadow-[0_8px_30px_rgba(0,0,0,0.5)]`; card.onclick = () => viewAircraft(ac.id);
-                card.innerHTML = `<i class="fas ${iconClass} text-5xl sm:text-6xl text-white/5 absolute -right-2 -bottom-2 z-0 transform ${!isHeli ? '-rotate-45' : ''}"></i><div class="relative z-10 flex justify-between items-start mb-4"><div><h3 class="text-xl sm:text-2xl font-bold text-white tracking-widest">${ac.reg}</h3><p class="text-cyan-400 font-medium text-[10px] sm:text-sm truncate w-32 sm:w-40">${ac.type}</p></div><div class="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-slate-800/80 border border-slate-600 flex items-center justify-center text-slate-300"><i class="fas ${iconClass} text-xs sm:text-base"></i></div></div><div class="relative z-10 grid grid-cols-2 gap-2 sm:gap-3 mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-slate-700/50"><div><p class="text-[8px] sm:text-[10px] text-slate-400 uppercase">Speed</p><p class="text-xs sm:text-sm font-semibold text-white">${ac.speed} <span class="text-[8px] sm:text-[10px] text-slate-500 font-normal">kts</span></p></div><div><p class="text-[8px] sm:text-[10px] text-slate-400 uppercase">Fuel Cons.</p><p class="text-xs sm:text-sm font-semibold text-white">${ac.fuel} <span class="text-[8px] sm:text-[10px] text-slate-500 font-normal">${ac.fuelUnit}/hr</span></p></div></div>`;
+                card.innerHTML = `<i class="fas ${iconClass} text-5xl sm:text-6xl text-white/5 absolute -right-2 -bottom-2 z-0 transform ${!isHeli ? '-rotate-45' : ''}"></i><div class="relative z-10 flex justify-between items-start mb-4"><div><h3 class="text-xl sm:text-2xl font-bold text-white tracking-widest">${ac.reg}</h3><p class="text-cyan-400 font-medium text-[10px] sm:text-sm truncate w-32 sm:w-40">${ac.type}</p></div><div class="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-slate-800/80 border border-slate-600 flex items-center justify-center text-slate-300"><i class="fas ${iconClass} text-xs sm:text-base"></i></div></div><div class="relative z-10 grid grid-cols-3 gap-2 sm:gap-3 mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-slate-700/50"><div><p class="text-[8px] sm:text-[10px] text-slate-400 uppercase">Speed</p><p class="text-xs sm:text-sm font-semibold text-white">${ac.speed} <span class="text-[8px] sm:text-[10px] text-slate-500 font-normal">kts</span></p></div><div><p class="text-[8px] sm:text-[10px] text-slate-400 uppercase">Fuel Cons.</p><p class="text-xs sm:text-sm font-semibold text-white">${ac.fuel} <span class="text-[8px] sm:text-[10px] text-slate-500 font-normal">${ac.fuelUnit}/hr</span></p></div><div><p class="text-[8px] sm:text-[10px] text-slate-400 uppercase">MTOW</p><p class="text-xs sm:text-sm font-semibold text-white">${ac.mtow || 0} <span class="text-[8px] sm:text-[10px] text-slate-500 font-normal uppercase">${ac.weightUnit || 'kg'}</span></p></div></div>`;
                 grid.appendChild(card);
             });
         }
@@ -2394,22 +2518,74 @@
             if (id) {
                 const ac = aircraftsData.find(a => a.id === id);
                 if(ac) {
-                    document.getElementById('acId').value = ac.id; document.getElementById('acReg').value = ac.reg; document.getElementById('acModel').value = ac.model; document.getElementById('acType').value = ac.type; document.getElementById('acSpeed').value = ac.speed; document.getElementById('acFuel').value = ac.fuel; document.getElementById('acFuelUnit').value = ac.fuelUnit; document.getElementById('acModalTitle').innerHTML = '<i class="fas fa-edit text-blue-400 mr-2"></i>Edit Aircraft Profile';
+                    document.getElementById('acId').value = ac.id; 
+                    document.getElementById('acReg').value = ac.reg; 
+                    document.getElementById('acModel').value = ac.model; 
+                    document.getElementById('acType').value = ac.type; 
+                    document.getElementById('acSpeed').value = ac.speed; 
+                    document.getElementById('acFuel').value = ac.fuel; 
+                    document.getElementById('acFuelUnit').value = ac.fuelUnit; 
+                    
+                    document.getElementById('acWeightUnit').value = ac.weightUnit || 'kg';
+                    document.getElementById('acMtow').value = ac.mtow || '';
+                    document.getElementById('acEmptyWeight').value = ac.emptyWeight || '';
+                    document.getElementById('acPic').value = ac.pic || '';
+                    document.getElementById('acSic').value = ac.sic || '';
+                    document.getElementById('acEng1').value = ac.eng1 || '';
+                    document.getElementById('acEng2').value = ac.eng2 || '';
+
+                    document.getElementById('acModalTitle').innerHTML = '<i class="fas fa-edit text-blue-400 mr-2"></i>Edit Aircraft Profile';
                 }
-            } else { document.getElementById('acId').value = ''; document.getElementById('acModalTitle').innerHTML = '<i class="fas fa-plane text-blue-400 mr-2"></i>Add Aircraft Profile'; }
+            } else { 
+                document.getElementById('acId').value = ''; 
+                document.getElementById('acModalTitle').innerHTML = '<i class="fas fa-plane text-blue-400 mr-2"></i>Add Aircraft Profile'; 
+            }
             document.getElementById('aircraftFormModal').classList.remove('hidden');
         }
         function closeAircraftForm() { document.getElementById('aircraftFormModal').classList.add('hidden'); }
+        
         function saveAircraft(e) {
             e.preventDefault(); const id = document.getElementById('acId').value;
-            const newAC = { id: id || 'ac_' + Date.now(), reg: document.getElementById('acReg').value.toUpperCase(), model: document.getElementById('acModel').value, type: document.getElementById('acType').value, speed: parseFloat(document.getElementById('acSpeed').value), fuel: parseFloat(document.getElementById('acFuel').value), fuelUnit: document.getElementById('acFuelUnit').value };
+            const newAC = { 
+                id: id || 'ac_' + Date.now(), 
+                reg: document.getElementById('acReg').value.toUpperCase(), 
+                model: document.getElementById('acModel').value, 
+                type: document.getElementById('acType').value, 
+                speed: parseFloat(document.getElementById('acSpeed').value), 
+                fuel: parseFloat(document.getElementById('acFuel').value), 
+                fuelUnit: document.getElementById('acFuelUnit').value,
+                
+                weightUnit: document.getElementById('acWeightUnit').value,
+                mtow: parseFloat(document.getElementById('acMtow').value) || 0,
+                emptyWeight: parseFloat(document.getElementById('acEmptyWeight').value) || 0,
+                pic: parseFloat(document.getElementById('acPic').value) || 0,
+                sic: parseFloat(document.getElementById('acSic').value) || 0,
+                eng1: parseFloat(document.getElementById('acEng1').value) || 0,
+                eng2: parseFloat(document.getElementById('acEng2').value) || 0
+            };
             if (id) { const idx = aircraftsData.findIndex(a => a.id === id); if(idx !== -1) aircraftsData[idx] = newAC; } else { aircraftsData.push(newAC); }
             saveAircrafts(); renderAircrafts(); closeAircraftForm(); closeAircraftDetail();
         }
+        
         function viewAircraft(id) {
             const ac = aircraftsData.find(a => a.id === id); if(!ac) return;
             const isHeli = ac.model === 'Helicopter'; const iconClass = isHeli ? 'fa-helicopter' : 'fa-plane';
-            document.getElementById('detailId').value = ac.id; document.getElementById('detailReg').textContent = ac.reg; document.getElementById('detailType').textContent = ac.type; document.getElementById('detailModel').textContent = ac.model.toUpperCase(); document.getElementById('detailSpeed').textContent = ac.speed; document.getElementById('detailFuel').textContent = ac.fuel; document.getElementById('detailFuelUnit').textContent = ac.fuelUnit + '/hr';
+            document.getElementById('detailId').value = ac.id; 
+            document.getElementById('detailReg').textContent = ac.reg; 
+            document.getElementById('detailType').textContent = ac.type; 
+            document.getElementById('detailModel').textContent = ac.model.toUpperCase(); 
+            document.getElementById('detailSpeed').textContent = ac.speed; 
+            document.getElementById('detailFuel').textContent = ac.fuel; 
+            document.getElementById('detailFuelUnit').textContent = ac.fuelUnit + '/hr';
+            
+            document.getElementById('detailWeightUnit').textContent = (ac.weightUnit || 'kg').toUpperCase();
+            document.getElementById('detailMtow').textContent = ac.mtow || 0;
+            document.getElementById('detailEmpty').textContent = ac.emptyWeight || 0;
+            document.getElementById('detailPic').textContent = ac.pic || 0;
+            document.getElementById('detailSic').textContent = ac.sic || 0;
+            document.getElementById('detailEng1').textContent = ac.eng1 || 0;
+            document.getElementById('detailEng2').textContent = ac.eng2 || 0;
+
             document.getElementById('detailIcon').innerHTML = `<i class="fas ${iconClass}"></i>`; document.getElementById('detailIconBg').className = `fas ${iconClass} text-6xl sm:text-8xl text-blue-400/10 absolute -right-4 sm:-right-6 -top-2 z-0 transform ${!isHeli ? '-rotate-45' : ''}`;
             document.getElementById('aircraftDetailModal').classList.remove('hidden');
         }
@@ -2481,6 +2657,7 @@
                 } totalFuel = totalDecHours * rt.fuelCons;
             }
             document.getElementById('detRtFuel').textContent = Math.round(totalFuel) + (ac ? ' ' + ac.fuelUnit : '');
+            document.getElementById('detRtPayload').textContent = (rt.payload || 0) + (ac ? ' ' + (ac.weightUnit || 'KG').toUpperCase() : '');
             
             // Re-bind Action Buttons
             document.getElementById('btnDetEdit').onclick = () => { closeRouteDetailModal(); editRoute(id); }; 
@@ -2505,7 +2682,58 @@
         function recalcRouteTotals(rt) { let totalDist = 0; let totalDecHours = 0; for(let i=1; i<rt.waypoints.length; i++) { const dist = calcDistanceNM(rt.waypoints[i-1].lat, rt.waypoints[i-1].lon, rt.waypoints[i].lat, rt.waypoints[i].lon); totalDist += dist; if(rt.speed > 0) totalDecHours += (dist / rt.speed); } rt.totalDist = Math.round(totalDist); rt.totalEET = formatTimeHM(totalDecHours); }
         
         function populateRouteAircrafts() { const select = document.getElementById('rtAircraft'); const currentVal = select.value; select.innerHTML = '<option value="">-- Select Aircraft --</option>'; aircraftsData.forEach(ac => { select.innerHTML += `<option value="${ac.id}">${ac.reg} - ${ac.type}</option>`; }); select.value = currentVal; }
-        function handleRouteAircraftChange() { const id = document.getElementById('rtAircraft').value; const ac = aircraftsData.find(a => a.id === id); if (ac) { document.getElementById('rtSpeed').value = ac.speed; document.getElementById('rtFuelCons').value = ac.fuel; document.getElementById('rtFuelUnitLabel1').textContent = ac.fuelUnit; document.getElementById('rtFuelUnitLabel2').textContent = ac.fuelUnit; } else { document.getElementById('rtSpeed').value = ''; document.getElementById('rtFuelCons').value = ''; document.getElementById('rtFuelUnitLabel1').textContent = '-'; document.getElementById('rtFuelUnitLabel2').textContent = '-'; } renderOFPTable(); }
+        
+        function handleRouteAircraftChange() { 
+            const id = document.getElementById('rtAircraft').value; 
+            const ac = aircraftsData.find(a => a.id === id); 
+            if (ac) { 
+                document.getElementById('rtSpeed').value = ac.speed; 
+                document.getElementById('rtFuelCons').value = ac.fuel; 
+                document.getElementById('rtFuelUnitLabel1').textContent = ac.fuelUnit; 
+                document.getElementById('rtFuelUnitLabel2').textContent = ac.fuelUnit; 
+
+                // Set W&B Data
+                document.getElementById('rtWeightUnit').textContent = (ac.weightUnit || 'KG').toUpperCase();
+                document.getElementById('rtMtow').value = ac.mtow || 0;
+                document.getElementById('rtEmptyWeight').value = ac.emptyWeight || 0;
+                const totalCrew = (ac.pic || 0) + (ac.sic || 0) + (ac.eng1 || 0) + (ac.eng2 || 0);
+                document.getElementById('rtCrewWeight').value = totalCrew;
+            } else { 
+                document.getElementById('rtSpeed').value = ''; 
+                document.getElementById('rtFuelCons').value = ''; 
+                document.getElementById('rtFuelUnitLabel1').textContent = '-'; 
+                document.getElementById('rtFuelUnitLabel2').textContent = '-'; 
+
+                // Clear W&B Data
+                document.getElementById('rtWeightUnit').textContent = 'KG';
+                document.getElementById('rtMtow').value = '';
+                document.getElementById('rtEmptyWeight').value = '';
+                document.getElementById('rtCrewWeight').value = '';
+                document.getElementById('rtPayload').value = '';
+            } 
+            renderOFPTable(); 
+            calculatePayload();
+        }
+
+        function calculatePayload() {
+            const mtow = parseFloat(document.getElementById('rtMtow').value) || 0;
+            const emptyW = parseFloat(document.getElementById('rtEmptyWeight').value) || 0;
+            const crewW = parseFloat(document.getElementById('rtCrewWeight').value) || 0;
+            const fuelOb = parseFloat(document.getElementById('rtFuelOnboard').value) || 0;
+            
+            const payload = mtow - emptyW - crewW - fuelOb;
+            const payloadEl = document.getElementById('rtPayload');
+            
+            payloadEl.value = payload;
+            
+            if (payload < 0) {
+                payloadEl.classList.add('text-red-400', 'bg-red-900/30', 'border-red-500/50');
+                payloadEl.classList.remove('text-emerald-400', 'bg-emerald-900/20', 'border-emerald-500/30');
+            } else {
+                payloadEl.classList.remove('text-red-400', 'bg-red-900/30', 'border-red-500/50');
+                payloadEl.classList.add('text-emerald-400', 'bg-emerald-900/20', 'border-emerald-500/30');
+            }
+        }
 
         function openRouteForm(id = null) {
             populateRouteAircrafts(); currentRouteWps = [];
@@ -2514,12 +2742,31 @@
                 if (rt) {
                     document.getElementById('rtId').value = rt.id; document.getElementById('rtName').value = rt.name; document.getElementById('rtAircraft').value = rt.aircraftId; document.getElementById('rtEtd').value = rt.etd || ''; document.getElementById('rtSpeed').value = rt.speed; document.getElementById('rtFuelCons').value = rt.fuelCons; document.getElementById('rtFuelOnboard').value = rt.fuelOnboard || 0;
                     currentRouteWps = rt.waypoints.map(savedWp => { const dbWp = waypointsData.find(db => db.id === savedWp.id); return dbWp ? {...dbWp} : savedWp; });
-                    document.getElementById('routeModalTitle').innerHTML = '<i class="fas fa-edit text-blue-400 mr-2"></i>Edit Operational Flight Plan'; const ac = aircraftsData.find(a => a.id === rt.aircraftId); if(ac) { document.getElementById('rtFuelUnitLabel1').textContent = ac.fuelUnit; document.getElementById('rtFuelUnitLabel2').textContent = ac.fuelUnit; }
+                    document.getElementById('routeModalTitle').innerHTML = '<i class="fas fa-edit text-blue-400 mr-2"></i>Edit Operational Flight Plan'; 
+                    
+                    const ac = aircraftsData.find(a => a.id === rt.aircraftId); 
+                    if(ac) { 
+                        document.getElementById('rtFuelUnitLabel1').textContent = ac.fuelUnit; 
+                        document.getElementById('rtFuelUnitLabel2').textContent = ac.fuelUnit; 
+                        document.getElementById('rtWeightUnit').textContent = (ac.weightUnit || 'KG').toUpperCase();
+                        document.getElementById('rtMtow').value = ac.mtow || 0;
+                        document.getElementById('rtEmptyWeight').value = ac.emptyWeight || 0;
+                        
+                        if(rt.crewWeight !== undefined) {
+                            document.getElementById('rtCrewWeight').value = rt.crewWeight;
+                        } else {
+                            document.getElementById('rtCrewWeight').value = (ac.pic || 0) + (ac.sic || 0) + (ac.eng1 || 0) + (ac.eng2 || 0);
+                        }
+                    }
                 }
             } else {
-                document.getElementById('rtId').value = ''; document.getElementById('rtName').value = ''; document.getElementById('rtAircraft').value = ''; document.getElementById('rtEtd').value = ''; document.getElementById('rtSpeed').value = ''; document.getElementById('rtFuelCons').value = ''; document.getElementById('rtFuelOnboard').value = ''; document.getElementById('rtFuelUnitLabel1').textContent = '-'; document.getElementById('rtFuelUnitLabel2').textContent = '-'; document.getElementById('routeModalTitle').innerHTML = '<i class="fas fa-clipboard-list text-blue-400 mr-2"></i>Create Operational Flight Plan';
+                document.getElementById('rtId').value = ''; document.getElementById('rtName').value = ''; document.getElementById('rtAircraft').value = ''; document.getElementById('rtEtd').value = ''; document.getElementById('rtSpeed').value = ''; document.getElementById('rtFuelCons').value = ''; document.getElementById('rtFuelOnboard').value = ''; document.getElementById('rtFuelUnitLabel1').textContent = '-'; document.getElementById('rtFuelUnitLabel2').textContent = '-'; 
+                document.getElementById('rtMtow').value = ''; document.getElementById('rtEmptyWeight').value = ''; document.getElementById('rtCrewWeight').value = ''; document.getElementById('rtPayload').value = '';
+                document.getElementById('routeModalTitle').innerHTML = '<i class="fas fa-clipboard-list text-blue-400 mr-2"></i>Create Operational Flight Plan';
             }
-            renderOFPTable(); document.getElementById('routeFormModal').classList.remove('hidden');
+            renderOFPTable(); 
+            calculatePayload();
+            document.getElementById('routeFormModal').classList.remove('hidden');
         }
         function closeRouteForm() { document.getElementById('routeFormModal').classList.add('hidden'); }
         function openRouteWpSelector() { document.getElementById('searchRouteWp').value = ''; renderRouteWpSelectorList(); document.getElementById('routeWpSelectModal').classList.remove('hidden'); setTimeout(() => document.getElementById('searchRouteWp').focus(), 100); }
@@ -2537,7 +2784,6 @@
         function addWpToRoute(wpId) { const wp = waypointsData.find(w => w.id === wpId); if (wp) { currentRouteWps.push({...wp}); renderOFPTable(); closeRouteWpSelector(); } }
         function removeWpFromRoute(index) { currentRouteWps.splice(index, 1); renderOFPTable(); }
         
-        // Pindahkan posisi WP di OFP
         function moveWpUp(index) {
             if (index > 0) {
                 const temp = currentRouteWps[index - 1]; currentRouteWps[index - 1] = currentRouteWps[index]; currentRouteWps[index] = temp;
@@ -2556,6 +2802,15 @@
             const etdVal = document.getElementById('rtEtd').value || "00:00"; const speed = parseFloat(document.getElementById('rtSpeed').value) || 0; const fuelCons = parseFloat(document.getElementById('rtFuelCons').value) || 0; const fuelOnboard = parseFloat(document.getElementById('rtFuelOnboard').value) || 0;
             const col1Type = document.getElementById('ofpCol1').value; const col2Type = document.getElementById('ofpCol2').value; const col3Type = document.getElementById('ofpCol3').value;
             let totalDist = 0; let totalDecHours = 0; let totalFuel = 0;
+
+            // --- AUTO-FILL ROUTE NAME: Origin - Destination ---
+            if (currentRouteWps.length > 1) {
+                document.getElementById('rtName').value = currentRouteWps[0].name + '-' + currentRouteWps[currentRouteWps.length - 1].name;
+            } else if (currentRouteWps.length === 1) {
+                document.getElementById('rtName').value = currentRouteWps[0].name;
+            } else if (currentRouteWps.length === 0 && !document.getElementById('rtId').value) {
+                document.getElementById('rtName').value = '';
+            }
 
             currentRouteWps.forEach((wp, i) => {
                 let dist = 0, brng = 0, decHrs = 0, fuelBurn = 0; let etaHrs = 0;
@@ -2601,7 +2856,23 @@
             if(!name || !acId) { alert("Mohon isi Route Name dan pilih Aircraft Profile."); return; } if(currentRouteWps.length < 2) { alert("Operational Flight Plan minimal harus terdiri dari 2 Waypoint (Origin & Destination)."); return; }
             const ac = aircraftsData.find(a => a.id === acId); let totalDist = 0; let totalDecHours = 0; const speed = parseFloat(document.getElementById('rtSpeed').value) || 0;
             for(let i=1; i<currentRouteWps.length; i++) { const prev = currentRouteWps[i-1]; const curr = currentRouteWps[i]; const dist = calcDistanceNM(prev.lat, prev.lon, curr.lat, curr.lon); totalDist += dist; if(speed > 0) totalDecHours += (dist / speed); }
-            const newRt = { id: id || 'rt_' + Date.now(), name: name, aircraftId: acId, aircraftReg: ac ? ac.reg : 'UNKNOWN', etd: etd, speed: speed, fuelCons: parseFloat(document.getElementById('rtFuelCons').value) || 0, fuelOnboard: parseFloat(document.getElementById('rtFuelOnboard').value) || 0, waypoints: currentRouteWps, totalDist: Math.round(totalDist), totalEET: formatTimeHM(totalDecHours) };
+            
+            const newRt = { 
+                id: id || 'rt_' + Date.now(), 
+                name: name, 
+                aircraftId: acId, 
+                aircraftReg: ac ? ac.reg : 'UNKNOWN', 
+                etd: etd, 
+                speed: speed, 
+                fuelCons: parseFloat(document.getElementById('rtFuelCons').value) || 0, 
+                fuelOnboard: parseFloat(document.getElementById('rtFuelOnboard').value) || 0, 
+                crewWeight: parseFloat(document.getElementById('rtCrewWeight').value) || 0,
+                payload: parseFloat(document.getElementById('rtPayload').value) || 0,
+                waypoints: currentRouteWps, 
+                totalDist: Math.round(totalDist), 
+                totalEET: formatTimeHM(totalDecHours) 
+            };
+            
             if (id) { const idx = routesData.findIndex(r => r.id === id); if(idx !== -1) routesData[idx] = newRt; } else { routesData.push(newRt); }
             saveRoutes(); renderRouteList(); closeRouteForm();
         }
