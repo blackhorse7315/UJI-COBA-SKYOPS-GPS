@@ -1216,7 +1216,7 @@
     <script>
         // --- KONFIGURASI GOOGLE SHEETS & DRIVE ---
         // GANTI URL DI BAWAH DENGAN URL WEB APP ANDA DARI GOOGLE SCRIPT
-        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwzk17en5nR_2qAwmToOj3lZYeRHUKQ-DQzSQaxf1sKsTTppPy7K04ZsKMeakd5gIrx/exec'; 
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzIDPOeyQD9HA3JHNo-hBYK2x80g9fgjdu2VBt8yKSN5P2w53-RnoD5uqP76FtaWRMq/exec'; 
         const DRIVE_FOLDER_ID = '1lStx1qqfrFuR0cgifu7eS3AR-CjAF6tx'; // Sesuai permintaan
         
         // Konstanta untuk 10 Slot Dokumen Spesifik
@@ -1266,8 +1266,21 @@
         async function fetchFromSheet(sheetName) {
             if (!GOOGLE_SCRIPT_URL) return null;
             try {
-                const res = await fetch(`${GOOGLE_SCRIPT_URL}?sheet=${sheetName}&t=${Date.now()}`);
-                if (!res.ok) throw new Error("Gagal merespon dari server.");
+                // Tambahkan redirect: 'follow' untuk menangani URL redirect GAS
+                const res = await fetch(`${GOOGLE_SCRIPT_URL}?sheet=${sheetName}&t=${Date.now()}`, {
+                    method: 'GET',
+                    redirect: 'follow'
+                });
+                
+                if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+                
+                // Cek jika response adalah HTML (biasanya tanda error authentikasi atau redirect login)
+                const contentType = res.headers.get("content-type");
+                if (contentType && contentType.indexOf("text/html") !== -1) {
+                   console.error("Warning: Mendapat response HTML, bukan JSON. Cek pengaturan Akses Web App di Google Script.");
+                   return null; 
+                }
+
                 const text = await res.text();
                 return JSON.parse(text);
             } catch (err) {
@@ -1286,9 +1299,20 @@
                     action: "saveWaypointWithFiles" 
                 };
 
+                // KUNCI PERBAIKAN CORS UNTUK GAS:
+                // 1. method POST
+                // 2. body harus berupa string JSON
+                // 3. JANGAN memakai custom headers jika tidak perlu, atau gunakan text/plain
+                // 4. redirect: 'follow' HARUS ada
+                
                 const response = await fetch(GOOGLE_SCRIPT_URL, { 
                     method: 'POST', 
-                    headers: { 'Content-Type': 'text/plain' },
+                    // Menggunakan text/plain agar browser tidak melakukan CORS Preflight (OPTIONS request)
+                    // yang seringkali gagal di Google Apps Script
+                    headers: { 
+                        'Content-Type': 'text/plain;charset=utf-8' 
+                    },
+                    redirect: 'follow', 
                     body: JSON.stringify(payload) 
                 });
                 
@@ -1296,6 +1320,13 @@
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
                 
+                // Periksa apakah balasan adalah HTML (error)
+                const contentType = response.headers.get("content-type");
+                if (contentType && contentType.indexOf("text/html") !== -1) {
+                     const errText = await response.text();
+                     throw new Error("Terjadi kesalahan authentikasi atau server error. Pastikan Deployment: Execute as 'Me', Who has access 'Anyone'.");
+                }
+
                 const result = await response.json();
                 if (result.status === "success") {
                     console.log(`Successfully synced ${sheetName}`);
@@ -2364,21 +2395,87 @@
 
         function handleWpDocUploadFixed(input) {
             const file = input.files[0];
-            if (file) {
+            if (!file) return;
+
+            const maxFileSize = 10 * 1024 * 1024; // 10 MB dalam bytes
+            if (file.size > maxFileSize) {
+                alert("Ukuran file terlalu besar! Maksimal ukuran file adalah 10 MB. Silakan pilih file lain.");
+                input.value = ''; // Reset input
+                return;
+            }
+
+            const container = input.closest('.doc-slot-item');
+            const indicator = container.querySelector('.file-attached-indicator');
+            const statusText = indicator.querySelector('.status-text');
+
+            // Tampilkan status loading kompresi
+            indicator.classList.remove('hidden');
+            indicator.classList.remove('text-emerald-400');
+            indicator.classList.add('text-blue-400');
+            statusText.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i> Memproses file...';
+
+            // Jika file adalah gambar, lakukan kompresi otomatis
+            if (file.type.startsWith('image/')) {
+                compressImage(file, 0.7, function(compressedBase64) {
+                    setFileDataToSlot(container, compressedBase64, file.type, indicator, statusText);
+                });
+            } else {
+                // Jika file PDF atau lainnya, baca langsung sebagai Base64
                 const reader = new FileReader();
                 reader.onload = function(e) {
-                    const container = input.closest('.doc-slot-item');
-                    container.querySelector('.doc-data').value = e.target.result;
-                    container.querySelector('.doc-type').value = file.type;
-                    
-                    const indicator = container.querySelector('.file-attached-indicator');
-                    indicator.classList.remove('hidden');
-                    indicator.querySelector('.status-text').textContent = 'File Baru Siap Diupload';
-                    
-                    container.querySelector('.clear-doc-btn').classList.remove('hidden');
+                    setFileDataToSlot(container, e.target.result, file.type, indicator, statusText);
                 }
                 reader.readAsDataURL(file);
             }
+        }
+
+        // Fungsi Helper untuk kompresi gambar menggunakan Canvas
+        function compressImage(file, quality, callback) {
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    let width = img.width;
+                    let height = img.height;
+
+                    // Batas resolusi maksimal gambar untuk memperkecil ukuran
+                    const MAX_WIDTH = 1600;
+                    const MAX_HEIGHT = 1600;
+
+                    if (width > height) {
+                        if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
+                    } else {
+                        if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; }
+                    }
+
+                    canvas.width = width;
+                    canvas.height = height;
+
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    // Konversi kembali ke Base64, gunakan format JPEG untuk kompresi lossy
+                    const mimeType = file.type === 'image/png' ? 'image/png' : 'image/jpeg';
+                    const compressedBase64 = canvas.toDataURL(mimeType, quality);
+                    
+                    callback(compressedBase64);
+                };
+                img.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Fungsi Helper untuk mengatur nilai UI dan input hidden setelah file siap
+        function setFileDataToSlot(container, base64Data, fileType, indicator, statusText) {
+            container.querySelector('.doc-data').value = base64Data;
+            container.querySelector('.doc-type').value = fileType;
+            
+            indicator.classList.remove('text-blue-400');
+            indicator.classList.add('text-emerald-400');
+            statusText.innerHTML = 'File Siap Diupload';
+            
+            container.querySelector('.clear-doc-btn').classList.remove('hidden');
         }
 
         function getWpDocData() {
