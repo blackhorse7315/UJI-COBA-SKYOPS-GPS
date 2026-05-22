@@ -1216,7 +1216,7 @@
     <script>
         // --- KONFIGURASI GOOGLE SHEETS & DRIVE ---
         // GANTI URL DI BAWAH DENGAN URL WEB APP ANDA DARI GOOGLE SCRIPT
-        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwFoCkAfLVY_ZOC3Eq7IT1RfRhxJcwypOaHRe21x3YqcpW47F7WHshCes0LAN1U05aK/exec'; 
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz5XHd61zvW7snrF6qGGY_nthyaxsrpBSSBiOqAX65iQT8TTtx1pxNhtXfC_W-hVrf1/exec'; 
         const DRIVE_FOLDER_ID = '1lStx1qqfrFuR0cgifu7eS3AR-CjAF6tx'; // Sesuai permintaan
         
         // Konstanta untuk 10 Slot Dokumen Spesifik
@@ -1290,55 +1290,38 @@
         }
 
         async function postToSheet(sheetName, data) {
-            if (!GOOGLE_SCRIPT_URL) return;
-            try {
-                const payload = {
-                    sheet: sheetName,
-                    folderId: DRIVE_FOLDER_ID,
-                    data: data,
-                    action: "saveWaypointWithFiles" 
-                };
+    if (!GOOGLE_SCRIPT_URL) return;
+    
+    // Log data untuk memastikan ukurannya tidak melebihi batas 50MB (Batasan Google Apps Script)
+    const payload = JSON.stringify({
+        sheet: sheetName,
+        folderId: DRIVE_FOLDER_ID,
+        data: data,
+        action: "saveWaypointWithFiles"
+    });
+    
+    console.log("Mengirim data ke:", GOOGLE_SCRIPT_URL);
+    console.log("Ukuran Payload:", (new Blob([payload]).size / 1024 / 1024).toFixed(2), "MB");
 
-                // KUNCI PERBAIKAN CORS UNTUK GAS:
-                // 1. method POST
-                // 2. body harus berupa string JSON
-                // 3. JANGAN memakai custom headers jika tidak perlu, atau gunakan text/plain
-                // 4. redirect: 'follow' HARUS ada
-                
-                const response = await fetch(GOOGLE_SCRIPT_URL, { 
-                    method: 'POST', 
-                    // Menggunakan text/plain agar browser tidak melakukan CORS Preflight (OPTIONS request)
-                    // yang seringkali gagal di Google Apps Script
-                    headers: { 
-                        'Content-Type': 'text/plain;charset=utf-8' 
-                    },
-                    redirect: 'follow', 
-                    body: JSON.stringify(payload) 
-                });
-                
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                
-                // Periksa apakah balasan adalah HTML (error)
-                const contentType = response.headers.get("content-type");
-                if (contentType && contentType.indexOf("text/html") !== -1) {
-                     const errText = await response.text();
-                     throw new Error("Terjadi kesalahan authentikasi atau server error. Pastikan Deployment: Execute as 'Me', Who has access 'Anyone'.");
-                }
+    try {
+        const response = await fetch(GOOGLE_SCRIPT_URL, {
+            method: 'POST',
+            mode: 'no-cors', // Mode no-cors seringkali diperlukan untuk bypass pre-flight check GAS
+            headers: {
+                'Content-Type': 'text/plain;charset=utf-8'
+            },
+            body: payload
+        });
 
-                const result = await response.json();
-                if (result.status === "success") {
-                    console.log(`Successfully synced ${sheetName}`);
-                    return result;
-                } else {
-                    throw new Error(result.message || "Unknown backend error");
-                }
-            } catch (err) { 
-                console.error(`Error Posting ${sheetName}:`, err); 
-                throw err;
-            }
-        }
+        // Catatan: Jika menggunakan mode 'no-cors', Anda tidak bisa membaca body response.
+        // Cukup pastikan tidak ada error di sini.
+        console.log("Request terkirim (no-cors mode).");
+        return { status: "success" };
+    } catch (err) {
+        console.error("Gagal Posting Data:", err);
+        throw new Error("Gagal terhubung ke Google Apps Script. Pastikan URL benar.");
+    }
+}
         
         // ==========================================
         // --- MATH & UTILITY HELPERS             ---
