@@ -24,6 +24,10 @@
     <!-- Leaflet CSS & JS for Real Map -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <!-- Leaflet Geocoder for Search -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
+    <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
     <style>
         /* Custom Styles & Animations */
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
@@ -180,6 +184,40 @@
 
         .leaflet-control-layers-list {
             padding: 4px;
+        }
+
+        /* Styling for Geocoder to fit dark theme */
+        .leaflet-control-geocoder {
+            background: rgba(15, 23, 42, 0.9) !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            border-radius: 12px !important;
+            color: white !important;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5) !important;
+        }
+        .leaflet-control-geocoder-icon {
+            border-radius: 12px !important;
+            background-color: transparent !important;
+            filter: invert(1);
+        }
+        .leaflet-control-geocoder-expanded {
+            border-radius: 12px !important;
+        }
+        .leaflet-control-geocoder-form input {
+            background: transparent !important;
+            color: white !important;
+        }
+        .leaflet-control-geocoder-form input::placeholder {
+            color: #94a3b8 !important;
+        }
+        .leaflet-control-geocoder-alternatives {
+            background: rgba(15, 23, 42, 0.95) !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            border-radius: 8px !important;
+            color: white !important;
+            margin-top: 5px;
+        }
+        .leaflet-control-geocoder-alternatives li:hover, .leaflet-control-geocoder-selected {
+            background: rgba(59, 130, 246, 0.3) !important;
         }
 
         /* Flight HUD Data Box */
@@ -1588,6 +1626,20 @@
             };
             L.control.layers(baseMaps, null, { position: 'topright', collapsed: true }).addTo(map);
 
+            // Add Search Geocoder
+            L.Control.geocoder({
+                position: 'topright',
+                defaultMarkGeocode: false,
+                placeholder: 'Cari alamat/lokasi...'
+            }).on('markgeocode', function(e) {
+                const latlng = e.geocode.center;
+                const name = e.geocode.name;
+                const bbox = e.geocode.bbox;
+                
+                map.fitBounds(bbox);
+                handleSearchMapClick(latlng.lat, latlng.lng, name);
+            }).addTo(map);
+
             let currentBaseLayer = satelliteHybrid;
             map.on('baselayerchange', function (e) {
                 const newLayer = e.layer;
@@ -1636,6 +1688,21 @@
                 const data = await res.json();
                 const elevFeet = Math.round((data.elevation && data.elevation.length > 0 ? data.elevation[0] : 0) * 3.28084);
                 const popupHtml = ` <div class="min-w-[180px]"> <div class="flex items-center gap-2 mb-2 border-b border-slate-600 pb-2"><i class="fas fa-crosshairs text-emerald-400 text-lg"></i><h4 class="font-bold text-sm text-emerald-400 m-0">MAP LOCATION</h4></div> <div class="text-xs text-slate-300 space-y-1 mb-4"> <p class="m-0 flex items-center"><i class="fas fa-map-pin w-4 text-center text-slate-400 mr-1"></i> ${decToDMSStr(lat, true)}</p> <p class="m-0 flex items-center"><i class="fas fa-map-pin w-4 text-center text-slate-400 opacity-0 mr-1"></i> ${decToDMSStr(lng, false)}</p> <p class="m-0 flex items-center mt-1"><i class="fas fa-mountain w-4 text-center text-slate-400 mr-1"></i> ${elevFeet} ft</p> </div> <div class="flex"><button onclick="addClickedToWaypoint(${lat}, ${lng}, ${elevFeet})" class="bg-emerald-600 hover:bg-emerald-500 text-white px-2 py-2 rounded text-xs w-full transition font-medium"><i class="fas fa-plus mr-1"></i> Add to Waypoint</button></div> </div>`;
+                popup.setContent(popupHtml);
+            } catch (err) {
+                popup.setContent('<div class="min-w-[180px] p-2 text-red-400 text-sm text-center">Gagal mengambil data elevasi.</div>');
+            }
+        }
+
+        async function handleSearchMapClick(lat, lng, name) {
+            if (flightMode !== 'none') return;
+            const popup = L.popup({ className: 'custom-popup' }).setLatLng([lat, lng]).setContent('<div class="min-w-[180px] p-2 text-center text-slate-300 text-sm"><i class="fas fa-spinner fa-spin mr-2"></i> Mengambil data elevasi...</div>').openOn(map);
+            try {
+                const res = await fetch(`https://api.open-meteo.com/v1/elevation?latitude=${lat}&longitude=${lng}`);
+                const data = await res.json();
+                const elevFeet = Math.round((data.elevation && data.elevation.length > 0 ? data.elevation[0] : 0) * 3.28084);
+                let safeName = name ? name.split(',')[0].replace(/['"`]/g, '') : "SEARCH RESULT";
+                const popupHtml = ` <div class="min-w-[180px]"> <div class="flex items-center gap-2 mb-2 border-b border-slate-600 pb-2"><i class="fas fa-search-location text-emerald-400 text-lg"></i><h4 class="font-bold text-sm text-emerald-400 m-0 truncate w-40" title="${name || 'Location'}">${safeName}</h4></div> <div class="text-xs text-slate-300 space-y-1 mb-4"> <p class="m-0 flex items-center"><i class="fas fa-map-pin w-4 text-center text-slate-400 mr-1"></i> ${decToDMSStr(lat, true)}</p> <p class="m-0 flex items-center"><i class="fas fa-map-pin w-4 text-center text-slate-400 opacity-0 mr-1"></i> ${decToDMSStr(lng, false)}</p> <p class="m-0 flex items-center mt-1"><i class="fas fa-mountain w-4 text-center text-slate-400 mr-1"></i> ${elevFeet} ft</p> <p class="text-[9px] text-slate-400 mt-2 truncate w-48 italic" title="${name || ''}">${name || ''}</p></div> <div class="flex"><button onclick="addClickedToWaypoint(${lat}, ${lng}, ${elevFeet})" class="bg-emerald-600 hover:bg-emerald-500 text-white px-2 py-2 rounded text-xs w-full transition font-medium"><i class="fas fa-plus mr-1"></i> Add to Waypoint</button></div> </div>`;
                 popup.setContent(popupHtml);
             } catch (err) {
                 popup.setContent('<div class="min-w-[180px] p-2 text-red-400 text-sm text-center">Gagal mengambil data elevasi.</div>');
