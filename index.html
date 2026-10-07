@@ -202,10 +202,13 @@
         .leaflet-control-geocoder-expanded {
             border-radius: 12px !important;
         }
+        /* Memaksa text warna putih pada kolom input */
+        .leaflet-control-geocoder input,
         .leaflet-control-geocoder-form input {
             background: transparent !important;
-            color: white !important;
+            color: #ffffff !important; 
         }
+        .leaflet-control-geocoder input::placeholder,
         .leaflet-control-geocoder-form input::placeholder {
             color: #94a3b8 !important;
         }
@@ -215,6 +218,11 @@
             border-radius: 8px !important;
             color: white !important;
             margin-top: 5px;
+        }
+        /* Memaksa text warna putih pada hasil pencarian (alternatives) */
+        .leaflet-control-geocoder-alternatives li,
+        .leaflet-control-geocoder-alternatives a {
+            color: #ffffff !important;
         }
         .leaflet-control-geocoder-alternatives li:hover, .leaflet-control-geocoder-selected {
             background: rgba(59, 130, 246, 0.3) !important;
