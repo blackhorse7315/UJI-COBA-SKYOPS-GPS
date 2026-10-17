@@ -1056,6 +1056,15 @@
             return doc(db, colName, String(docId));
         }
 
+        let permissionAlertShown = false;
+        function handleFirestoreError(e, context) {
+            console.error(`Error ${context}:`, e);
+            if (!permissionAlertShown && (e.code === 'permission-denied' || (e.message && e.message.toLowerCase().includes('permission')))) {
+                permissionAlertShown = true;
+                showMessage("Akses Firebase Ditolak", "Database terkunci oleh Security Rules. Buka Firebase Console > Firestore > Rules, lalu ubah menjadi: allow read, write: if true;");
+            }
+        }
+
         // Sanitasi objek rekursif untuk mencegah field 'undefined' merusak penyimpanan Firestore
         function sanitizeForFirestore(data) {
             if (data === undefined) return null;
@@ -1401,6 +1410,38 @@
             await loadRoutes();
             document.getElementById('editAdminUser').value = localStorage.getItem('adminUser') || 'admin';
             document.getElementById('editAdminPass').value = localStorage.getItem('adminPass') || 'ramdan28';
+
+            // --- TAMBAHAN: AUTO-LOGIN CEK SESI LOKAL ---
+            const savedUserStr = localStorage.getItem('loggedInUser');
+            if (savedUserStr) {
+                try {
+                    const savedUser = JSON.parse(savedUserStr);
+                    // Cek jika yang tersimpan adalah Super Admin
+                    if (savedUser.role === 'admin' && savedUser.name === 'Super Admin') {
+                        currentUser = savedUser;
+                        showView('adminScreen');
+                    } else {
+                        // Cek kevalidan user biasa (apakah masih ada di DB & belum expired)
+                        const userRecord = usersData.find(u => u.username === savedUser.username && u.password === savedUser.password);
+                        if (userRecord) {
+                            const today = new Date();
+                            today.setHours(0, 0, 0, 0);
+                            const expDate = new Date(userRecord.expired);
+                            if (expDate >= today) {
+                                currentUser = userRecord;
+                                setupMainApp(userRecord);
+                                showView('mainScreen');
+                            } else {
+                                localStorage.removeItem('loggedInUser'); // Hapus jika sudah expired
+                            }
+                        } else {
+                            localStorage.removeItem('loggedInUser'); // Hapus jika user sudah dihapus admin
+                        }
+                    }
+                } catch (e) {
+                    localStorage.removeItem('loggedInUser');
+                }
+            }
         }
 
         async function loadUsers() {
@@ -1409,7 +1450,7 @@
                 const snapshot = await getDocs(getColRef('users'));
                 usersData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 renderUserTable();
-            } catch(e) { console.error("Error loading users from Firestore:", e); }
+            } catch(e) { handleFirestoreError(e, "loading users"); }
         }
 
         async function syncWithCloud() {
@@ -1441,21 +1482,28 @@
             const errorDiv = document.getElementById('loginError');
             const adminU = localStorage.getItem('adminUser') || 'admin';
             const adminP = localStorage.getItem('adminPass') || 'ramdan28';
+            
             if (userIn === adminU && passIn === adminP) {
                 errorDiv.classList.add('hidden');
                 currentUser = { name: 'Super Admin', role: 'admin' };
+                // Simpan Sesi Admin
+                localStorage.setItem('loggedInUser', JSON.stringify(currentUser));
                 document.getElementById('loginForm').reset();
                 showView('adminScreen');
                 return;
             }
+            
             const userRecord = usersData.find(u => u.username === userIn && u.password === passIn);
             if (userRecord) {
                 const today = new Date();
                 today.setHours(0, 0, 0, 0);
                 const expDate = new Date(userRecord.expired);
+                
                 if (expDate >= today) {
                     errorDiv.classList.add('hidden');
                     currentUser = userRecord;
+                    // Simpan Sesi User
+                    localStorage.setItem('loggedInUser', JSON.stringify(currentUser));
                     document.getElementById('loginForm').reset();
                     setupMainApp(userRecord);
                     showView('mainScreen');
@@ -1471,6 +1519,8 @@
 
         function logout() {
             currentUser = null;
+            // Hapus Sesi saat Logout
+            localStorage.removeItem('loggedInUser');
             showView('loginScreen');
         }
 
@@ -1762,7 +1812,7 @@
                 waypointsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 renderWaypoints();
                 updateMapWaypoints();
-            } catch(e) { console.error("Error loading waypoints from Firestore:", e); }
+            } catch(e) { handleFirestoreError(e, "loading waypoints"); }
         }
 
         function renderWaypoints() {
@@ -2296,7 +2346,7 @@
                 const snapshot = await getDocs(getColRef('aircrafts'));
                 aircraftsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 renderAircrafts();
-            } catch(e) { console.error("Error loading aircrafts from Firestore:", e); }
+            } catch(e) { handleFirestoreError(e, "loading aircrafts"); }
         }
 
         function renderAircrafts() {
@@ -2466,7 +2516,7 @@
                     return rt;
                 });
                 renderRouteList();
-            } catch(e) { console.error("Error loading routes from Firestore:", e); }
+            } catch(e) { handleFirestoreError(e, "loading routes"); }
         }
 
         function renderRouteList() {
